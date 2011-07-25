@@ -1,3 +1,21 @@
+#+TITLE Android FAQ
+
+* Building
+  * 编译依赖的库文件
+#+BEGIN_SRC bash
+    $ sudo apt-get install git-core gnupg flex bison gperf build-essential \
+  zip curl zlib1g-dev libc6-dev lib32ncurses5-dev ia32-libs \
+  x11proto-core-dev libx11-dev lib32readline5-dev lib32z-dev \
+  libgl1-mesa-dev g++-multilib mingw32 tofrodos
+#+END_SRC
+    参考: [[http://source.android.com/source/initializing.html][Android Initializing a Build Environment]]    
+
+  * fatal error: gnu/stubs-32.h: 没有那个文件或目录        
+#+BEGIN_SRC bash
+sudo apt-get install libc6-dev-i386
+#+END_SRC
+
+
 * Frameworks
 ** 在状态栏中增加图标
 参考文件： /frameworks/base/services/java/com/android/server/status/StatusBarPolicy.java
