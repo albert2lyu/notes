@@ -1,0 +1,4 @@
+* Frameworks
+** 在状态栏中增加图标
+参考文件： /frameworks/base/services/java/com/android/server/status/StatusBarPolicy.java
+

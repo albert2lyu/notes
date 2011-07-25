@@ -1,0 +1,31 @@
+* Install gclient
+  * checkout gclient source
+    svn co http://src.chromium.org/svn/trunk/tools/depot_tools
+  * Add depot_tools to your PATH:
+    - $ export PATH=`pwd`/depot_tools:"$PATH"
+    - You may want to add this to your .base_aliases file or your shell's equivalent so that you don’t need to reset your $PATH manually each time you open a new shell.
+
+
+* Getting the code and building
+Create a working directory, then call:
+
+gclient config https://webrtc.googlecode.com/svn/trunk
+gclient sync --force
+
+On Windows, if you use cygwin, call gclient.bat instead of gclient:
+
+gclient.bat config https://webrtc.googlecode.com/svn/trunk
+gclient.bat sync --force
+
+The sync will generate build files for your native build environment (Linux:make, OSX: XCode, Windows: Visual Studio). This generation can also be forced manually:
+
+gclient runhooks --force
+
+You should now be able to build the sample programs peerconnection_client (Windows only) and peerconnection_server (Windows, Linux).
+
+
+* 参考资料
+  * [[http://dev.chromium.org/developers/how-tos/install-depot-tools][Install the depot_tools]]
+  * [[http://www.webrtc.org/reference/getting-started][WebRTC before you start]]
+
+

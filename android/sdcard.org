@@ -1,0 +1,73 @@
+* 相关文件描述
+  - StorageManager为Client，MountService是Server，通过AIDL进行进程间通信。
+  - MountService是一个Android Service，由systemserver启动。
+  - Volume Daemon（Vold）是一个Native Service，有Init.c读取init.rc后启动。
+  - MountService和Vold之间通过Socket通信。
+  - NativeDaemonConnector帮助MountService取得Vold的socket，建立通信。
+  - Vold通过NetLink读取Kernel的uevent.
+  - NetLinkManager帮助Vold建立与kernel间的通信
+
+
+* SD Card Boot Sequence on Android Platform
+
+    When you are porting Android, one important feature to check is SD card mount. 
+
+    Needless to say this feature is needed for many functions to operate in correctly. 
+
+    Couple of such examples are Bluetooth OPP and FTP profiles.
+
+    SD card boot up sequence is as follows :
+
+    mmc/sd driver recognises the inserted card, makes device object for every partitions 
+
+    with unique combination of MAJOR:MINOR numbers and generate uevent.
+
+    uevent comes to user-level via kernel socket NETLINK_KOBJECT_UEVENT.
+
+    vold handles this uevent in uevent.c::handle_block_event().
+
+    vold reads boot sector to determine, how many partitions remains on storage.
+
+    If all partitions are found, vold will start "mount" procedure.
+
+    If mount is successfully finished, vold sends "volume_mounted:/sdcard" to 
+
+    com.android.server.MountListener.
+
+    com.android.server.MountListener dispatches message to 
+
+    com.android.server.MountService by handleEvent() method.
+
+    com.android.server.MountService provides to framework the logical interpretation of 
+
+    vold actions such as update icon notification and forwards command from user to vold.
+
+    So, in our case MountService::notifyMediaMounted() will generate 
+
+    Intent.ACTION_MEDIA_MOUNTED.
+
+    This intent will start com.android.providers.media.MediaScanner which will start 
+
+    searching the media content and makes the database. Parallely 
+
+    com.android.settings.deviceinfo.Memory will update memory status.
+
+    Some important files to remember for SD card boot sequence are mmc.c, 
+
+    ums.c vold.c, voldmgr.c, uevent.c. These files will be useful in debugging SD card 
+
+    boot up sequence. The configuration file of SD card is vold.conf and is present in 
+    /etc.
+
+
+* 参考资料
+  - [[http://www.android-x86.org/documents/sdcardhowto][Sdcard How To]]
+  - [[http://vinnysoft.blogspot.com/2010/11/sd-card-boot-sequence-on-android.html][SD Card Boot Sequence on Android Platform]]
+  - [[http://wenku.baidu.com/view/96e9b98483d049649b6658fc.html][USB之android Vold 分析]]
+  - [[http://blog.csdn.net/sustzombie/archive/2011/01/04/6116123.aspx][Android2.2 Vold 分析（一）--system/vold/main.cpp-----mian函数分析]]
+  - [[http://blog.csdn.net/sustzombie/archive/2011/01/05/6118256.aspx][Android2.2 Vold 分析（二）--Vold 中 Netlink事件通信机制分析]]
+  - [[http://blog.csdn.net/sustzombie/archive/2011/01/05/6118537.aspx][Android2.2 Vold 分析（三）--Vold 中 volumeManager分析]]
+  - [[http://blog.csdn.net/sustzombie/archive/2011/01/06/6120903.aspx][Android2.2 Vold 分析（四）--Vold 消息接收及挂载/卸载处理部分分析]]
+
+
+
