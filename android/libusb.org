@@ -1,0 +1,37 @@
+#+TITLE: libusb must be mounted usbfs
+#+AUTHOR: Bian Jiang
+#+EMAIL: borderj@gmail.com
+
+
+   今天通过libusb访问一个HID的设备，一调用USBDEVFS_CLAIMINTERFACE 
+ioctl就返回-1设备忙, 找了一下午原因也没有找到， 快到下班的时候，
+发现了一篇文章[[http://android.serverbox.ch/?p=151][Porting Libusb for Android on the Beagleboard in 5 steps]] 提到
+需要把设备加载到usbfs上，结果加载了usbfs设备就能正常访问了。
+  
+   在网上搜了一圈，发现libusb就是通过usbfs或usbdevfs来链接USB设备，所以在使用之前
+必须加载usbfs到/dev/bus/usb或/proc/bus/usb目录. 原文如下:
+
+#+BEGIN_VERSE
+libusb uses a pseudo-filesystem known as 'usbdevfs` or 'usbfs` to access
+the USB devices connected to your machine. This filesystem must be mounted
+under /proc/bus/usb for libusb to work.
+#+END_VERSE
+
+   libusb移植到Android具体可以参考[[Porting Libusb for Android on the Beagleboard in 5 steps]]
+
+需要注意的是:
+ * 在命令行加载sysfs需要执行:
+    + mount -t usbfs -o devmode=666 none /dev/bus/usb
+ * 在init.rc中需要使用:
+    + mount usbfs none /dev/bus/usb -o devmode=0666
+
+
+参考
+  * [[http://www.libusb.org/][libusb]]
+  * [[https://github.com/monaka/libusb-android][libusb-android]]
+  * [[http://android.serverbox.ch/?p=151][Porting Libusb for Android on the Beagleboard in 5 steps]]
+  * [[http://groups.google.com/group/beagleboard/browse_thread/thread/cd6707ab3d4bdb95][can't mount usbfs in Android 2.2]]
+  * [[http://blog.chinaunix.net/space.php?uid=20564848&do=blog&id=73832][libusb和HID设备]]
+
+
+

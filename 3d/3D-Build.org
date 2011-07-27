@@ -1,0 +1,10 @@
+* 概述
+
+* 相关资料
+** 相关关键字
+   人脸模型, 三维人脸重建, 3D人脸图像, 3D人脸模型, 人脸形状建模, 
+** 相关资料
+   * [[http://www.patentics.com/html/20398/160.htm][CN101814192-真实感3D人脸重建的方法]]
+   * [[http://www.patentics.com/showallsheet.htm?params=203872026_4_11~][CN101751689-一种三维人脸重建方法]]
+   * [[http://wenku.baidu.com/view/19b660f8fab069dc502201df.html][单张照片的三维人脸重建方法研究]]
+   * 
