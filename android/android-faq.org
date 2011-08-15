@@ -20,3 +20,15 @@ sudo apt-get install libc6-dev-i386
 ** 在状态栏中增加图标
 参考文件： /frameworks/base/services/java/com/android/server/status/StatusBarPolicy.java
 
+** 平台支持SIP
+frameworks/base/data/etc/android.software.sip.voip.xml 复制到system/etc/permissions/.
+#+BEGIN_SRC bash
+device/samsung/smdkv210/device.mk
+ # These are the hardware-specific features
+ PRODUCT_COPY_FILES += \
+        frameworks/base/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
+        frameworks/base/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml \
+        packages/wallpapers/LivePicker/android.software.live_wallpaper.xml:system/etc/permissions/android.software.live_wallpaper.xml
+
+#+END_SRC
+    [[http://stackoverflow.com/questions/4603465/sipmanager-newinstance-not-working-for-android-gingerbread][How to enable SIP in Android2.3 emulator]]
