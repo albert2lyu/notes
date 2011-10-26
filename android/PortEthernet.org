@@ -1,0 +1,93 @@
+#+TITLE Ethernet patch for Android Gingerbread
+
+* 流水帐
+  近来做Android有线网络移植，主要参考了[[http://blog.linuxconsulting.ro][Nicu Pavel]]的[[http://blog.linuxconsulting.ro/2011/06/ethernet-patch-for-android-gingerbread.html][Ethernet patch for Android Gingerbread]]
+按照[[http://blog.linuxconsulting.ro][Nicu Pavel]] 的方法在我的板子上死活运行不起来， 在“设置”里面点击“有线网络配置”，通过logcat
+查看一直显示我的"ethernet"服务没有起来(I/EthernetManager(  648): Init Ethernet Manager, service: null)。
+
+又仔细检查了一下patch，确定打的补丁没有问题，只能在深入的分析logcat日志。
+
+在日志中发现有几处可能和ethernet相关的地方。
+ * I/ethernet( 2060): Loading ethernet jni class
+ * I/SystemServer( 2136): NetStat Service
+ * I/SystemServer( 2136): NetworkManagement Service
+ * I/SystemServer( 2136): Connectivity Service
+
+分别查看了这几个文件和相关的服务， 排除了前三个的可能，就拿“Connectivity Service”开始，
+打开frameworks/base/services/java/com/android/server/ConnectivityService.java文件:
+ * 打开dbg信息:
+    private static final boolean DBG = true;
+ * 在ConnectivityService构造函数里面加了几句打印信息
+#+BEGIN_SRC java
+        String[] naStrings = context.getResources().getStringArray(
+                com.android.internal.R.array.networkAttributes);
+        for (String naString : naStrings) {
+            try {
+                NetworkAttributes n = new NetworkAttributes(naString);
+                // Add Debug Info
+                Slog.v(TAG, "[ConnectivityService.java] NetworkAttributes naString: " + naString  + "  type: " + n.mType);
+                if (n.mType > ConnectivityManager.MAX_NETWORK_TYPE) {
+                    Slog.e(TAG, "Error in networkAttributes - ignoring attempt to define type " +
+                            n.mType);
+                    continue;
+                }
+                if (mNetAttributes[n.mType] != null) {
+                    Slog.e(TAG, "Error in networkAttributes - ignoring attempt to redefine type " +
+                            n.mType);
+                    continue;
+                }
+                if ((n.mType != ConnectivityManager.TYPE_ETHERNET) && (mRadioAttributes[n.mRadio] == null)) {
+                    Slog.e(TAG, "Error in networkAttributes - ignoring attempt to use undefined " +
+                            "radio " + n.mRadio + " in network type " + n.mType);
+                    continue;
+                }
+                mNetAttributes[n.mType] = n;
+                mNetworksDefined++;
+            } catch(Exception e) {
+                Slog.e(TAG, "wrong dev exception " + e);
+                // ignore it - leave the entry null
+            }
+        }
+#+END_SRC
+得到相关的打印信息如下:
+#+BEGIN_SRC bash
+I/SystemServer( 2136): NetStat Service
+I/SystemServer( 2136): NetworkManagement Service
+I/SystemServer( 2136): Connectivity Service
+V/ConnectivityService( 2136): ConnectivityService starting up
+V/ConnectivityService( 2136): [ConnectivityService.java] NetworkAttributes naString: wifi,1,1,1  type: 1
+V/ConnectivityService( 2136): [ConnectivityService.java] NetworkAttributes naString: mobile,0,0,0  type: 0
+V/ConnectivityService( 2136): [ConnectivityService.java] NetworkAttributes naString: mobile_mms,2,0,2  type: 2
+V/ConnectivityService( 2136): [ConnectivityService.java] NetworkAttributes naString: mobile_supl,3,0,2  type: 3
+V/ConnectivityService( 2136): [ConnectivityService.java] NetworkAttributes naString: mobile_hipri,5,0,3  type: 5
+#+END_SRC
+
+除了ethernet其他的信息都有，这个比较奇怪，但是开头的那句, 就是去掉网络的配置信息，应该没有什么问题。
+#+BEGIN_SRC java
+        String[] naStrings = context.getResources().getStringArray(
+                com.android.internal.R.array.networkAttributes);
+#+END_SRC
+ 
+又去仔细检测了一遍frameworks/base/core/res/res/values/config.xml文件中的配置信息, 没有问题。
+#+BEGIN_SRC xml
+    <string-array translatable="false" name="networkAttributes">
+    <item>"wifi,1,1,1"</item>
+    <item>"mobile,0,0,0"</item>
+    <item>"mobile_mms,2,0,2"</item>
+    <item>"mobile_supl,3,0,2"</item>
+    <item>"mobile_hipri,5,0,3"</item>
+    <item>"ethernet,9,9,1"</item>
+    </string-array>
+#+END_SRC
+
+看到这里就比较比较奇怪了，配置文件中明明有ethernet但是，通过context去得的数据就偏偏没有ethernet, 再去ConnectivityManager.java中检查了一下 TYPE_ETHERNET的值，的确和配置文件中的数值一样， MAX_RADIO_TYPE和
+MAX_NETWORK_TYPE也都是TYPE_ETHERNET. 郁闷了半天也想不出来咋搞，习惯性的永grep -Rw 搜索了一下networkAttributes。
+在搜索的结果中发现了"device/samsung/smdkv210/overlay/frameworks/base/core/res/res/values/config.xml"这个地址。
+打开文件，发现这个配置里面的networkAttributes没有相关ethernet信息，可能是把framework里面的配置信息覆盖掉了，
+在config.xml中增加ethernet相关的信息，编译，运行。OK，果真是这个问题引起的， 唉。
+
+
+* 参考
+  * [[http://blog.linuxconsulting.ro/2011/06/ethernet-patch-for-android-gingerbread.html][Ethernet patch for Android Gingerbread]]
+
+-- EOF --

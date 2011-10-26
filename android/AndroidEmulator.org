@@ -1,0 +1,16 @@
+#+TITLE: Android Emulator
+#+AUTHOR: Bian Jiang
+#+EMAIL: borderj@gmail.com
+
+* Emulator Limitations
+  * No support for placing or receiving actual phone calls. You can simulate phone calls (placed and received) through the emulator console, however.
+  * No support for USB connections
+  * No support for camera/video capture (input).
+  * No support for device-attached headphones
+  * No support for determining connected state
+  * No support for determining battery charge level and AC charging state
+  * No support for determining SD card insert/eject
+  * No support for Bluetooth
+
+* 参考
+  * [[http://developer.android.com/guide/developing/devices/emulator.html][Emulator]]
