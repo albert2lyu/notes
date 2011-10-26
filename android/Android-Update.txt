@@ -1,0 +1,15 @@
+Android 升级
+
+curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+
+border@b0rder:/mnt/ubuntu32/android$ mkdir android-2.3.1_r1
+border@b0rder:/mnt/ubuntu32/android$ cd android-2.3.1_r1/
+repo init -u https://android.googlesource.com/platform/manifest
+
+repo forall -c git checkout -b android-2.3.1_r1 android-2.3.1_r1
+
+repo forall -c git checkout -b android-2.3.3_r1 android-2.3.3_r1
+
+repo forall -c git checkout -b android-2.3.4_r1 android-2.3.4_r1
+
+

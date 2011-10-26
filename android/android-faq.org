@@ -15,8 +15,136 @@
 sudo apt-get install libc6-dev-i386
 #+END_SRC
 
+  * Kernel 编译
+    修改Makefile文件中的ARCH
+#+BEGIN_SRC bash
+    ARCH		?= arm
+    CROSS_COMPILE	?= /usr/local/arm/arm-2009q3/bin/arm-none-linux-gnueabi-
+#+END_SRC
+
+
+
+* 升级
+** 取得Android最新源代码
+#+BEGIN_SRC bash
+You need to get the latest version of the repo tool:
+curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
+You need to initialize a new repository:
+repo init -u https://android.googlesource.com/platform/manifest -b android-2.3.7_r1
+The full instructions are at http://source.android.com/source/downloading.html
+#+END_SRC
 
 * Frameworks
 ** 在状态栏中增加图标
 参考文件： /frameworks/base/services/java/com/android/server/status/StatusBarPolicy.java
+
+** Android 默认配置文件保存路径: 
+#+BEGIN_SRC bash
+./frameworks/base/core/res/res/values/config.xml
+./frameworks/base/packages/SettingsProvider/res/values/defaults.xml
+./device/samsung/smdkv210/overlay/frameworks/base
+border@b0rder:/mnt/ubuntu32/work/vc1000/src/android-vc1000-2.3/device/samsung/smdkv210/overlay/frameworks/base$ tree
+.
+├── core
+│   └── res
+│       └── res
+│           ├── drawable-hdpi
+│           │   └── default_wallpaper.jpg
+│           ├── values
+│           │   └── config.xml
+│           └── xml
+│               └── power_profile.xml
+├── packages
+│   └── SettingsProvider
+│       └── res
+│           └── values
+│               └── defaults.xml
+└── tests
+    └── ImfTest
+        └── res
+            └── values
+                └── config.xml
+
+#+END_SRC
+
+** Camera
+*** take Picture
+    * ShutterButton.java调用performClick()，这个函数中调用了Camera.java中的onShutterButtonClick()
+    接着的执行流程为 ----->dosnap()----->ImagePicture.onSnap()----->ImageCapture.initiate()---->ImageCapture.capture() 此函数执行完后，takepicture 过程完成
+    * takePicture 完成后，surfaceChanged()将被调用将刚照下的照片显示在屏幕上。
+    Camera.java中的回调接口JpegPictureCallback中的函数onPictureTaken()接着执行。这个函数先调用ImageCapture.storeImage()将jpeg图像数据存储在内存。
+    * picture 的thumbnail显示过程：
+    ImageCapture.storeImage()--->ImageCapture.setLastPictureThumb()---> mThumbController.setData(uri, lastPictureThumb);
+    * Android -> Kernel
+    device/samsung/proprietary/libcamera
+    CameraHardwareSec::pictureThread() ------> SecCamera::startSnapshot(void)
+#+BEGIN_SRC C++
+/*
+ * Devide getJpeg() as two funcs, startSnapshot() & getJpeg() because of the shutter sound timing.
+ * Here, just send the capture cmd to camera ISP to start JPEG capture.
+ */
+int SecCamera::startSnapshot(void)
+{
+    LOGV("%s :", __func__);
+
+    int ret = 0;
+
+    LOG_TIME_DEFINE(0)
+    LOG_TIME_DEFINE(1)
+
+    if (m_cam_fd <= 0) {
+        LOGE("ERR(%s):Camera was closed\n", __func__);
+        return 0;
+    }
+
+    if (m_flag_camera_start > 0) {
+        LOG_TIME_START(0)
+        LOGW("WARN(%s):Camera was in preview, should have been stopped\n", __func__);
+        stopPreview();
+        LOG_TIME_END(0)
+    }
+
+    memset(&m_events_c, 0, sizeof(m_events_c));
+    m_events_c.fd = m_cam_fd;
+    m_events_c.events = POLLIN | POLLERR;
+
+#if defined(LOG_NDEBUG) && LOG_NDEBUG == 0
+    m_printColorFormat(m_snapshot_v4lformat, __func__);
+#endif
+
+    LOG_TIME_START(1) // prepare
+    int nframe = 1;
+
+    ret = fimc_v4l2_enum_fmt(m_cam_fd,m_snapshot_v4lformat);
+    CHECK(ret);
+
+    int v4l_pix_capture = m_snapshot_v4lformat;
+
+    if(this->getJpegStreamPossible() == true)
+        v4l_pix_capture = V4L2_PIX_FMT_JPEG;
+
+    ret = fimc_v4l2_s_fmt(m_cam_fd, m_snapshot_width, m_snapshot_height,
+                          v4l_pix_capture, 1);
+    CHECK(ret);
+
+    ret = this->m_setCameraAngle(m_cam_fd);
+    CHECK(ret);
+
+    ret = fimc_v4l2_reqbufs(m_cam_fd, V4L2_BUF_TYPE_VIDEO_CAPTURE, nframe);
+    CHECK(ret);
+
+    ret = fimc_v4l2_querybuf(m_cam_fd, &m_capture_buf, V4L2_BUF_TYPE_VIDEO_CAPTURE);
+    CHECK(ret);
+
+    ret = fimc_v4l2_qbuf(m_cam_fd, 0);
+    CHECK(ret);
+
+    ret = fimc_v4l2_streamon(m_cam_fd);
+    CHECK(ret);
+    LOG_TIME_END(1)
+
+    return 0;
+}
+#+END_SRC
+
 
