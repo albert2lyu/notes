@@ -15,12 +15,26 @@
 sudo apt-get install libc6-dev-i386
 #+END_SRC
 
-  * Kernel 编译
-    修改Makefile文件中的ARCH
+* Kernel 编译
+** 修改Makefile文件中的ARCH
 #+BEGIN_SRC bash
     ARCH		?= arm
     CROSS_COMPILE	?= /usr/local/arm/arm-2009q3/bin/arm-none-linux-gnueabi-
 #+END_SRC
+
+** security/commoncap.c 出错
+#+BEGIN_SRC bash
+CC      security/commoncap.o
+security/commoncap.c: In function 'cap_capable':
+security/commoncap.c:90: error: 'AID_NET_RAW' undeclared (first use in this function)
+security/commoncap.c:90: error: (Each undeclared identifier is reported only once
+security/commoncap.c:90: error: for each function it appears in.)
+security/commoncap.c:92: error: 'AID_NET_ADMIN' undeclared (first use in this function)
+make[1]: *** [security/commoncap.o] 错误 1
+make: *** [security] 错误 2
+#+END_SRC
+    因为没有定义CONFIG_ANDROID_PARANOID_NETWORK，需要在make menuconfig 中打开“Networking support” --> "Networking options"
+
 
 
 
