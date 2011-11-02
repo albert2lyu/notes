@@ -35,6 +35,7 @@ CROSS_COMPILE=/usr/local/arm/arm-2009q3/bin/arm-none-linux-gnueabi-
 #+END_SRC
 
 ** error: 'GTP_VAR_RDTSC_ID' undeclared(latest version fixed By: [[http://twitter.com/teawater][teawater]] )
+
 #+BEGIN_SRC bash
   CC [M]  /home/border/work/kernel/kgtp/trunk/gtp.o
 /home/border/work/kernel/kgtp/trunk/gtp.c: In function 'gtp_gdbrsp_qtv':
@@ -45,7 +46,7 @@ CROSS_COMPILE=/usr/local/arm/arm-2009q3/bin/arm-none-linux-gnueabi-
 #+END_SRC
 
  * solution:
-#+BEGIN_SRC bash
+#+BEGIN_EXAMPLE
 diff --git a/trunk/gtp.c b/trunk/gtp.c
 index 4d0c9a2..75c145e 100644
 --- a/trunk/gtp.c
@@ -64,7 +65,7 @@ index 4d0c9a2..75c145e 100644
                 } else if (num == GTP_VAR_XTIME_SEC_ID
                            || num == GTP_VAR_XTIME_NSEC_ID) {
                         struct timespec time
-#+END_SRC
+#+END_EXAMPLE
 
 
 * Complie and Install KGTP
