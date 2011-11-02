@@ -36,6 +36,26 @@ make: *** [security] 错误 2
     因为没有定义CONFIG_ANDROID_PARANOID_NETWORK，需要在make menuconfig 中打开“Networking support” --> "Networking options"
 
 
+* wifi
+** wpa_supplicant 服务
+   在init.rc文件中增加wpa_supplicant服务
+#+BEGIN_SRC bash
+service wpa_supplicant /system/bin/wpa_supplicant -dddd -Dwext -iwlan0 -c/system/etc/wifi/wpa_supplicant.conf
+    socket wpa_wlan0 dgram 660 wifi wifi
+    group system wifi inet
+    disabled
+    oneshot
+#+END_SRC
+
+** init: no such service 'dhcpcd_wlan0'
+   在init.rc文件中增加dhcpcd_wlan0服务
+#+BEGIN_SRC bash
+service dhcpcd_wlan0 /system/bin/dhcpcd -o domain_name_servers -ABKL
+    user root system dhcp wifi
+    group root system dhcp wifi
+    disabled
+    oneshot
+#+END_SRC
 
 
 * 升级
