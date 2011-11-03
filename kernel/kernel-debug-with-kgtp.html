@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>Kernel debug with kgtp on android</title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-11-02 09:41:01 CST"/>
+<meta name="generated" content="2011-11-03 11:14:26 CST"/>
 <meta name="author" content="Bian Jiang"/>
 <meta name="description" content=""/>
 <meta name="keywords" content="Android, Kernel, gdb, KGTP, tracepoints"/>
@@ -129,11 +129,12 @@ This article describes how to use kgtp debug linux kernel on android.
 
 <pre class="example"> General setup  ---&gt; 
      [ * ] Prompt for development and/or incomplete code/drivers
+     [ * ] Kprobe
 Kernel hacking  ---&gt;
+     [ * ] Kernel debugging
+     [ * ]     Collect scheduler statistics
      [ * ] Compile the kernel with debug info
      [ * ] Compile the kernel with frame pointers
-     [ * ] KGDB: kernel debugger  ---&gt;
-           &lt; * &gt;   KGDB: use kgdb over the serial console
 </pre>
 
 
@@ -271,14 +272,10 @@ nc -l -p 1234 &lt; /sys/kernel/debug/gtp &gt; /sys/kernel/debug/gtp
 
 <pre class="example">cd /work/vc1000/src/kernel-vc1000-2.3
 make -j8
-sudo gdb-release ./vmlinux
 
 # symbian use "set gnutarget elf32-littlearm-symbian"
 # vxworks use "set gnutarget elf32-littlearm-vxworks"
-(gdb) set gnutarget elf32-littlearm
-
-# reloading the vmlinux
-(gdb) file /work/vc1000/src/kernel-vc1000-2.3/vmlinux
+sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 
 # if you want see the debug info
 (gdb) set debug remote 1
