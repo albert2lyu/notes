@@ -98,7 +98,7 @@ make -j8
 #+BEGIN_SRC bash
 # symbian use "set gnutarget elf32-littlearm-symbian"
 # vxworks use "set gnutarget elf32-littlearm-vxworks"
-sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
+gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 
 # if you want see the debug info
 (gdb) set debug remote 1
@@ -112,7 +112,8 @@ sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 sudo su
 # forward socket(adb forward <local> <remote>)
 adb forward tcp:1234 tcp:1234
-sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
+exit
+gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 # connection your remote device
 (gdb) target remote 127.0.0.1:1234
 #+END_SRC
