@@ -19,8 +19,6 @@ This article describes how to use kgtp debug linux kernel on android.
      [ * ] Prompt for development and/or incomplete code/drivers
      [ * ] Kprobe
 Kernel hacking  --->
-     [ * ] Kernel debugging
-     [ * ]     Collect scheduler statistics
      [ * ] Compile the kernel with debug info
      [ * ] Compile the kernel with frame pointers
 #+END_SRC
@@ -93,7 +91,11 @@ nc -l -p 1234 < /sys/kernel/debug/gtp > /sys/kernel/debug/gtp
 #+BEGIN_SRC bash
 cd /work/vc1000/src/kernel-vc1000-2.3
 make -j8
+#+END_SRC
 
+** Network connect to gtp
+
+#+BEGIN_SRC bash
 # symbian use "set gnutarget elf32-littlearm-symbian"
 # vxworks use "set gnutarget elf32-littlearm-vxworks"
 sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
@@ -103,7 +105,21 @@ sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 
 # connection your remote device
 (gdb) target remote 192.168.2.213:1234
+#+END_SRC
 
+** USB connect to gtp
+#+BEGIN_SRC bash
+sudo su
+# forward socket(adb forward <local> <remote>)
+adb forward tcp:1234 tcp:1234
+sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
+# connection your remote device
+(gdb) target remote 127.0.0.1:1234
+#+END_SRC
+
+
+** Debugging with gtp
+#+BEGIN_SRC bash
 (gdb) trace vfs_readdir
 Tracepoint 1 at 0xc02289f0: file /build/buildd/linux-2.6.35/fs/readdir.c, line 23.
 (gdb) actions 
@@ -140,11 +156,12 @@ Found trace frame 0, tracepoint 1
 
 * Very grateful for [[http://twitter.com/teawater][teawater]] 
 
-
+  
 * References
      * [[http://code.google.com/p/kgtp/][kgtp Linux Kernel GDB Tracepoint module]]    
      * [[http://code.google.com/p/kgtp/wiki/Quickstart][kgtp Quick start]]
      * [[http://code.google.com/p/kgtp/wiki/HOWTO][kgtp How to]]
+     * [[http://code.google.com/p/kgtp/wiki/HowToUseKGTPinAndroid][How To Use KGTP In Android]]
      * [[http://sourceware.org/gdb/onlinedocs/gdb/Tracepoints.html#Tracepoints][GDB Tracepoints]]
 
-
+       

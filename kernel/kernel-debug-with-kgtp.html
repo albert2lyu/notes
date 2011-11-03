@@ -7,7 +7,7 @@ lang="en" xml:lang="en">
 <title>Kernel debug with kgtp on android</title>
 <meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2011-11-03 11:14:26 CST"/>
+<meta name="generated" content="2011-11-03 12:34:05 CST"/>
 <meta name="author" content="Bian Jiang"/>
 <meta name="description" content=""/>
 <meta name="keywords" content="Android, Kernel, gdb, KGTP, tracepoints"/>
@@ -112,7 +112,13 @@ This article describes how to use kgtp debug linux kernel on android.
 </li>
 <li><a href="#sec-3">3 Complie and Install KGTP </a></li>
 <li><a href="#sec-4">4 KGTP Running On Android </a></li>
-<li><a href="#sec-5">5 Host PC </a></li>
+<li><a href="#sec-5">5 Host PC </a>
+<ul>
+<li><a href="#sec-5_1">5.1 Network connect to gtp </a></li>
+<li><a href="#sec-5_2">5.2 USB connect to gtp </a></li>
+<li><a href="#sec-5_3">5.3 Debugging with gtp </a></li>
+</ul>
+</li>
 <li><a href="#sec-6">6 Good luck, Happy Hacking&hellip; </a></li>
 <li><a href="#sec-7">7 Very grateful for teawater </a></li>
 <li><a href="#sec-8">8 References </a></li>
@@ -131,8 +137,6 @@ This article describes how to use kgtp debug linux kernel on android.
      [ * ] Prompt for development and/or incomplete code/drivers
      [ * ] Kprobe
 Kernel hacking  ---&gt;
-     [ * ] Kernel debugging
-     [ * ]     Collect scheduler statistics
      [ * ] Compile the kernel with debug info
      [ * ] Compile the kernel with frame pointers
 </pre>
@@ -272,8 +276,22 @@ nc -l -p 1234 &lt; /sys/kernel/debug/gtp &gt; /sys/kernel/debug/gtp
 
 <pre class="example">cd /work/vc1000/src/kernel-vc1000-2.3
 make -j8
+</pre>
 
-# symbian use "set gnutarget elf32-littlearm-symbian"
+
+
+
+</div>
+
+<div id="outline-container-5_1" class="outline-3">
+<h3 id="sec-5_1"><span class="section-number-3">5.1</span> Network connect to gtp </h3>
+<div class="outline-text-3" id="text-5_1">
+
+
+
+
+
+<pre class="example"># symbian use "set gnutarget elf32-littlearm-symbian"
 # vxworks use "set gnutarget elf32-littlearm-vxworks"
 sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 
@@ -282,8 +300,44 @@ sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
 
 # connection your remote device
 (gdb) target remote 192.168.2.213:1234
+</pre>
 
-(gdb) trace vfs_readdir
+
+
+</div>
+
+</div>
+
+<div id="outline-container-5_2" class="outline-3">
+<h3 id="sec-5_2"><span class="section-number-3">5.2</span> USB connect to gtp </h3>
+<div class="outline-text-3" id="text-5_2">
+
+
+
+
+<pre class="example">sudo su
+# forward socket(adb forward &lt;local&gt; &lt;remote&gt;)
+adb forward tcp:1234 tcp:1234
+sudo gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
+# connection your remote device
+(gdb) target remote 127.0.0.1:1234
+</pre>
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-5_3" class="outline-3">
+<h3 id="sec-5_3"><span class="section-number-3">5.3</span> Debugging with gtp </h3>
+<div class="outline-text-3" id="text-5_3">
+
+
+
+
+<pre class="example">(gdb) trace vfs_readdir
 Tracepoint 1 at 0xc02289f0: file /build/buildd/linux-2.6.35/fs/readdir.c, line 23.
 (gdb) actions 
 Enter actions for tracepoint 1, one per line.
@@ -328,6 +382,7 @@ Found trace frame 0, tracepoint 1
 </li>
 </ul>
 </div>
+</div>
 
 </div>
 
@@ -361,6 +416,8 @@ Found trace frame 0, tracepoint 1
 <li><a href="http://code.google.com/p/kgtp/wiki/Quickstart">kgtp Quick start</a>
 </li>
 <li><a href="http://code.google.com/p/kgtp/wiki/HOWTO">kgtp How to</a>
+</li>
+<li><a href="http://code.google.com/p/kgtp/wiki/HowToUseKGTPinAndroid">How To Use KGTP In Android</a>
 </li>
 <li><a href="http://sourceware.org/gdb/onlinedocs/gdb/Tracepoints.html#Tracepoints">GDB Tracepoints</a>
 </li>
