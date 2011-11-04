@@ -1,0 +1,47 @@
+#+TITLE: Android Ethernet StatusBar
+#+AUTHOR: Bian Jiang
+#+EMAIL: borderj@gmail.com
+#+LINK_HOME: http://wifihack.net
+#+KEYWORDS: Android, Ethernet, StartsBar, icon
+
+ * 系统UI相关代码：frameworks/base/packages/SystemUI
+ * 相关图标: frameworks/base/packages/SystemUI/res/drawable-mdpi/connect*
+ * 状态栏相关代码: frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/StatusBarPolicy.java
+
+#+BEGIN_EXAMPLE
+border@b0rder:/mnt/ubuntu32/work/vc1000/src/android-vc1000-2.3.4$ git diff 
+diff --git a/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/StatusBarPolicy.java b/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/Status
+index 6fcfd45..6fcdd51 100644
+--- a/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/StatusBarPolicy.java
++++ b/frameworks/base/packages/SystemUI/src/com/android/systemui/statusbar/StatusBarPolicy.java
+@@ -564,7 +564,8 @@ public class StatusBarPolicy {
+                     action.equals(WifiManager.WIFI_STATE_CHANGED_ACTION) ||
+                     action.equals(WifiManager.RSSI_CHANGED_ACTION)) {
+                 updateWifi(intent);
+-            }  else if (action.equals(EthernetManager.ETHERNET_STATE_CHANGED_ACTION)) {
++            }  else if (action.equals(EthernetManager.ETHERNET_STATE_CHANGED_ACTION) ||
++                    action.equals(EthernetManager.NETWORK_STATE_CHANGED_ACTION)) {
+                 updateEth(intent);
+             }
+             else if (action.equals(LocationManager.GPS_ENABLED_CHANGE_ACTION) ||
+@@ -705,6 +706,7 @@ public class StatusBarPolicy {
+         filter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+         filter.addAction(WifiManager.RSSI_CHANGED_ACTION);
+         filter.addAction(EthernetManager.ETHERNET_STATE_CHANGED_ACTION);
++        filter.addAction(EthernetManager.NETWORK_STATE_CHANGED_ACTION);
+         filter.addAction(LocationManager.GPS_ENABLED_CHANGE_ACTION);
+         filter.addAction(LocationManager.GPS_FIX_CHANGE_ACTION);
+         filter.addAction(TelephonyIntents.ACTION_SIM_STATE_CHANGED);
+@@ -1339,10 +1341,12 @@ public class StatusBarPolicy {
+             case EthernetStateTracker.EVENT_INTERFACE_CONFIGURATION_FAILED:
+                 mService.setIconVisibility("ethernet", false);
+                 iconId = sEthImages[1];
+-                return;
++                break;
+             default:
+                 iconId = sEthImages[2];
+         }
+         mService.setIcon("ethernet", iconId, 0);
+     }
+#+END_EXAMPLE
+
