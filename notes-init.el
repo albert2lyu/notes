@@ -18,8 +18,11 @@
          :recursive t
          :publishing-function org-publish-org-to-html
          :auto-index t
-         :index-filename "index.org"
-         :index-title "index"
+;         :index-filename "index.org"
+;         :index-title "index"
+         :auto-sitemap t                ; Generate sitemap.org automagically...
+         :sitemap-filename "index.org"  ; ... call it sitemap.org (it's the default)...
+         :sitemap-title "index"         ; ... with title 'sitemap'.
          :link-home "index.html")
         ("note-static"
          :base-directory ,note-root-dir

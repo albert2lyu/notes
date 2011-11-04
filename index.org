@@ -1,8 +1,0 @@
-#+TITLE: index
-
-   + android
-     + [[file:android/android-faq.org][android-faq]]
-   + emacs
-     + [[file:emacs/note.org][note]]
-   + personal
-     + [[file:personal/mygtd.org][*#+STARTUP: showall]]
