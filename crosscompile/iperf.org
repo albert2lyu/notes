@@ -1,0 +1,44 @@
+iperf is a good tool to test network bandwidth, and I do not know any 
+one has ported for Android, this is my try with static way. 
+Steps to generate iperf running on Android 
+1 download iperf source from sourceforge.net, http://sourceforge.net/projects/iperf/ 
+2 download toolchain from codesourcery, http://www.codesourcery.com/sgpp/lite/arm/portal/release644 
+3 enter iperf source folder, run configure command 
+         ./configure –host=arm-linux CXX=$(PATH_OF_arm-none-linux- 
+gnueabi-g++) CXXFLAGS=-static CC=$(PATH_OF_arm-none-linux-gnueabi-gcc) 
+CFLAGS=-static 
+4 make 
+         If error liking “Reporter.o:Reporter.c:(.text+0xedc): more 
+undefined references to `rpl_malloc'”, modify config.h, and comment 
+the line “#define malloc rpl_malloc”, then make again 
+5 generated iperf can run on Android platform. 
+I test it on emulator and reports are: 
+# ./iperf -s 
+./iperf -s 
+------------------------------------------------------------ 
+Server listening on TCP port 5001 
+TCP window size: 85.3 KByte (default) 
+------------------------------------------------------------ 
+[  5] local 127.0.0.1 port 5001 connected with 127.0.0.1 port 56946 
+[ ID] Interval       Transfer     Bandwidth 
+[  5]  0.0-10.0 sec  32.9 MBytes  27.6 Mbits/sec 
+# ./iperf -c 127.0.0.1 -i 2 -t 10 
+./iperf -c 127.0.0.1 -i 2 -t 10 
+------------------------------------------------------------ 
+Client connecting to 127.0.0.1, TCP port 5001 
+TCP window size:   131 KByte (default) 
+------------------------------------------------------------ 
+[  3] local 127.0.0.1 port 56946 connected with 127.0.0.1 port 5001 
+[ ID] Interval       Transfer     Bandwidth 
+[  3]  0.0- 2.0 sec  6.86 MBytes  28.8 Mbits/sec 
+[ ID] Interval       Transfer     Bandwidth 
+[  3]  2.0- 4.0 sec  6.53 MBytes  27.4 Mbits/sec 
+[ ID] Interval       Transfer     Bandwidth 
+[  3]  4.0- 6.0 sec  6.51 MBytes  27.3 Mbits/sec 
+[ ID] Interval       Transfer     Bandwidth 
+[  3]  6.0- 8.0 sec  6.43 MBytes  27.0 Mbits/sec 
+[ ID] Interval       Transfer     Bandwidth 
+[  3]  0.0-10.0 sec  32.9 MBytes  27.5 Mbits/sec 
+
+From: http://groups.google.com/group/android-platform/browse_thread/thread/1ab11d2c3fbc5cad
+

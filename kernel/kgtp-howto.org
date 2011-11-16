@@ -1,0 +1,56 @@
+==============================================
+KGTP backtrace by sp 
+==============================================
+
+border@b0rder:/work/vc1000/src/kernel-vc1000-2.3$ gdb-release -ex "set gnutarget elf32-littlearm" -ex "file ./vmlinux"
+GNU gdb (GDB) 7.3.1.20110905-cvs-ubuntu
+Copyright (C) 2011 Free Software Foundation, Inc.
+License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
+and "show warranty" for details.
+This GDB was configured as "x86_64-linux-gnu".
+For bug reporting instructions, please see:
+<http://www.gnu.org/software/gdb/bugs/>.
+Reading symbols from /mnt/ubuntu32/work/vc1000/src/kernel-vc1000-2.3/vmlinux...done.
+(gdb) target remote 127.0.0.1:1234
+Remote debugging using 127.0.0.1:1234
+0x00000000 in ?? ()
+(gdb) trace fimc_open
+Tracepoint 1 at 0xc02e7a34: file drivers/media/video/samsung/fimc/fimc_dev.c, line 894.
+(gdb) actions
+Enter actions for tracepoint 1, one per line.
+End with a line saying just "end".
+>collect *(unsigned char *)$sp@1024
+>end
+(gdb) tstart
+(gdb) tstop
+(gdb) tfind
+Found trace frame 0, tracepoint 1
+#0  fimc_open (filp=0xcc879d80) at drivers/media/video/samsung/fimc/fimc_dev.c:894
+894	{
+(gdb) bt
+#0  fimc_open (filp=0xcc879d80) at drivers/media/video/samsung/fimc/fimc_dev.c:894
+#1  0xc02dba9c in v4l2_open (inode=<optimized out>, filp=0xcc879d80) at drivers/media/video/v4l2-dev.c:287
+#2  0xc011eca0 in chrdev_open (inode=0xeff5a2a0, filp=0xcc879d80) at fs/char_dev.c:408
+#3  0xc011a4a4 in __dentry_open (dentry=0xef8cb090, mnt=0xefe7d980, f=0xcc879d80, open=0xc011eb0c <chrdev_open>, cred=0xeff30d80) at fs/open.c:687
+#4  0xc011a694 in nameidata_to_filp (nd=<optimized out>) at fs/open.c:790
+#5  0xc0126324 in finish_open (acc_mode=<optimized out>, open_flag=<optimized out>, nd=<optimized out>) at fs/namei.c:1579
+#6  do_last (nd=0xef439ec8, path=<optimized out>, open_flag=131074, acc_mode=38, mode=0, pathname=0xea13b000 "") at fs/namei.c:1742
+#7  0xc0127e90 in do_filp_open (dfd=<optimized out>, pathname=0xea13b000 "", open_flag=131074, mode=<optimized out>, acc_mode=38) at fs/namei.c:1836
+#8  0xc011a210 in do_sys_open (dfd=<optimized out>, filename=<optimized out>, flags=131074, mode=0) at fs/open.c:886
+#9  0xc011a300 in sys_open (filename=<optimized out>, flags=-280781416, mode=-1070745044) at fs/open.c:907
+#10 0xc008c9c0 in ?? ()
+Cannot access memory at address 0x0
+#11 0xc008c9c0 in ?? ()
+Cannot access memory at address 0x0
+Backtrace stopped: previous frame identical to this frame (corrupt stack?)
+(gdb) 
+
+
+==============================================
+KGTP  dump_stack
+==============================================
+
+
+
