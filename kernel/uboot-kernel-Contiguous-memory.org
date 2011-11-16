@@ -4,11 +4,11 @@
 #+LINK_HOME: http://wifihack.net
 #+KEYWORDS: Android, Kernel, uboot, memory, nand
 
-* ¼òµ¥ËµÃ÷
- * include/configs/smdkv210single.h ÎÄ¼şÖĞµÄ bootcommand, ²»ÒªºÍcpu/s5pc11x/fastboot.c ÎÄ¼şÖĞµÄptable_default±í¶ÔÓ¦ÉÏ, µÚÒ»¸önand read ÊÇkernelµÄÆğÊ¼µØÖ·£¬Æ«ÒÆµØÖ·ÒÔ¼°ÎÄ¼ş³¤¶È£¬
-µÚ¶ş¸önand read ÊÇramdiskµÄÆğÊ¼µØÖ·£¬±ãÒËµØÖ·ºÍÎÄ¼ş³¤¶È£¬ÕâÁ½¸öĞÅÏ¢×îºÃºÍfastboot.cµÄ·ÖÇø±í¶ÔÓ¦ÉÏ¡£
- * bootm ·Ö±ğÊÇkernelºÍramdiskµÄÒıµ¼µØÖ·¡£
- * board/samsung/smdkc110/lowlevel_init.S ÎÄ¼şÖĞµÄmmudataÊÇÄÚ´æÓ³ÉäÏà¹ØµÄÅäÖÃĞÅÏ¢¡£
+* ç®€å•è¯´æ˜
+ * include/configs/smdkv210single.h æ–‡ä»¶ä¸­çš„ bootcommand, ä¸è¦å’Œcpu/s5pc11x/fastboot.c æ–‡ä»¶ä¸­çš„ptable_defaultè¡¨å¯¹åº”ä¸Š, ç¬¬ä¸€ä¸ªnand read æ˜¯kernelçš„èµ·å§‹åœ°å€ï¼Œåç§»åœ°å€ä»¥åŠæ–‡ä»¶é•¿åº¦ï¼Œ
+ç¬¬äºŒä¸ªnand read æ˜¯ramdiskçš„èµ·å§‹åœ°å€ï¼Œä¾¿å®œåœ°å€å’Œæ–‡ä»¶é•¿åº¦ï¼Œè¿™ä¸¤ä¸ªä¿¡æ¯æœ€å¥½å’Œfastboot.cçš„åˆ†åŒºè¡¨å¯¹åº”ä¸Šã€‚
+ * bootm åˆ†åˆ«æ˜¯kernelå’Œramdiskçš„å¼•å¯¼åœ°å€ã€‚
+ * board/samsung/smdkc110/lowlevel_init.S æ–‡ä»¶ä¸­çš„mmudataæ˜¯å†…å­˜æ˜ å°„ç›¸å…³çš„é…ç½®ä¿¡æ¯ã€‚
 
 #+BEGIN_EXAMPLE
 /* S5PC110 Default Partition Table */
@@ -64,7 +64,7 @@ fastboot_ptentry ptable_default[] =
 #+END_EXAMPLE
 
 
-* Ö÷ÒªĞŞ¸ÄµÄÎÄ¼ş:
+* ä¸»è¦ä¿®æ”¹çš„æ–‡ä»¶:
 
 #+BEGIN_EXAMPLE
  board/samsung/smdkc110/lowlevel_init.S |   22 +++++++++++++++++++++-
@@ -72,7 +72,7 @@ fastboot_ptentry ptable_default[] =
  include/configs/smdkv210single.h       |   15 ++++++++++-----
 #+END_EXAMPLE
 
-* ĞŞ¸Ä´úÂëÈçÏÂ:
+* ä¿®æ”¹ä»£ç å¦‚ä¸‹:
 
 #+BEGIN_EXAMPLE
 diff --git a/board/samsung/smdkc110/lowlevel_init.S b/board/samsung/smdkc110/lowlevel_init.S
