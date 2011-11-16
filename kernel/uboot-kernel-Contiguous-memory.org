@@ -1,0 +1,204 @@
+#+TITLE: uboot kernel contiguous memory
+#+AUTHOR: Bian Jiang
+#+EMAIL: borderj@gmail.com
+#+LINK_HOME: http://wifihack.net
+#+KEYWORDS: Android, Kernel, uboot, memory, nand
+
+* 简单说明
+ * include/configs/smdkv210single.h 文件中的 bootcommand, 不要和cpu/s5pc11x/fastboot.c 文件中的ptable_default表对应上, 第一个nand read 是kernel的起始地址，偏移地址以及文件长度，
+第二个nand read 是ramdisk的起始地址，便宜地址和文件长度，这两个信息最好和fastboot.c的分区表对应上。
+ * bootm 分别是kernel和ramdisk的引导地址。
+ * board/samsung/smdkc110/lowlevel_init.S 文件中的mmudata是内存映射相关的配置信息。
+
+#+BEGIN_EXAMPLE
+/* S5PC110 Default Partition Table */
+fastboot_ptentry ptable_default[] =
+{
+	{
+		.name     = "bootloader",
+		.start    = 0x0,
+		.length   = 0x100000,
+		.flags    = 0
+	},
+	{
+		.name     = "recovery",
+		.start    = 0x100000,
+		.length   = 0x500000,
+		.flags    = 0
+	},
+	{
+		.name     = "kernel",
+		.start    = 0x600000,
+		.length   = 0x500000,
+		.flags    = 0
+	},
+	{
+		.name     = "ramdisk",
+		.start    = 0xB00000,
+		.length   = 0x300000,
+		.flags    = 0
+	},
+	{
+		.name     = "system",
+		.start    = 0xE00000,
+		.length   = 0x7E00000,
+		.flags    = FASTBOOT_PTENTRY_FLAGS_WRITE_YAFFS
+	},
+	{
+		.name     = "cache",
+		.start    = 0x8C00000,
+		.length   = 0x5000000,
+		.flags    = FASTBOOT_PTENTRY_FLAGS_WRITE_YAFFS
+	},
+	{
+		.name     = "userdata",
+		.start    = 0xDC00000,
+		.length   = 0,
+		.flags    = FASTBOOT_PTENTRY_FLAGS_WRITE_YAFFS
+	}
+};
+#+END_EXAMPLE
+
+#+BEGIN_EXAMPLE
+#define CONFIG_BOOTCOMMAND	"nand read C0008000 600000 500000; nand read 30B00000 B00000 300000; bootm C0008000 30B00000"
+#+END_EXAMPLE
+
+
+* 主要修改的文件:
+
+#+BEGIN_EXAMPLE
+ board/samsung/smdkc110/lowlevel_init.S |   22 +++++++++++++++++++++-
+ board/samsung/smdkc110/smdkc110.c      |    3 ++-
+ include/configs/smdkv210single.h       |   15 ++++++++++-----
+#+END_EXAMPLE
+
+* 修改代码如下:
+
+#+BEGIN_EXAMPLE
+diff --git a/board/samsung/smdkc110/lowlevel_init.S b/board/samsung/smdkc110/lowlevel_init.S
+index b75c6c9..08c5aae 100644
+--- a/board/samsung/smdkc110/lowlevel_init.S
++++ b/board/samsung/smdkc110/lowlevel_init.S
+@@ -428,12 +428,22 @@ nand_asm_init:
+ 
+ 	ldr	r0, =ELFIN_NAND_BASE
+ 
++    /* Bian Jiang Contiguous memory 2011.11.15 */
++#if 0
+ 	ldr	r1, [r0, #NFCONF_OFFSET]
+ 	ldr	r2, =0x777F
+ 	bic	r1, r1, r2
+ 	ldr	r2, =NFCONF_VAL
+ 	orr	r1, r1, r2
+ 	str	r1, [r0, #NFCONF_OFFSET]
++#else
++	ldr	r1, [r0, #NFCONF_OFFSET]
++	ldr	r2, =0x222F
++	bic	r1, r1, r2
++	ldr	r2, =NFCONF_VAL
++	orr	r1, r1, r2
++	str	r1, [r0, #NFCONF_OFFSET]
++#endif
+ 
+ 	ldr	r1, [r0, #NFCONT_OFFSET]
+ 	ldr	r2, =0x707C7
+@@ -442,10 +452,18 @@ nand_asm_init:
+ 	orr	r1, r1, r2
+ 	str	r1, [r0, #NFCONT_OFFSET]
+ 
++    /* Bian Jiang Contiguous memory 2011.11.15 */
++#if 0
+ 	ldr	r1, [r0, #NFCONF_OFFSET]
+ 	orr	r1, r1, #0x70
+ 	orr	r1, r1, #0x7700
+ 	str     r1, [r0, #NFCONF_OFFSET]
++#else
++	ldr	r1, [r0, #NFCONF_OFFSET]
++	orr	r1, r1, #0x20
++	orr	r1, r1, #0x2200
++	str     r1, [r0, #NFCONF_OFFSET]
++#endif
+ 
+ 	ldr	r1, [r0, #NFCONT_OFFSET]
+ 	orr	r1, r1, #0x03
+@@ -596,7 +614,9 @@ mmu_table:
+ 	.set __base,__base+1
+ 	.endr
+ 
+-	.set __base,0x200
++    /* Bian Jiang Contiguous memory 2011.11.15 */
++//	.set __base,0x200
++	.set __base,0x300
+ 	// 256MB for SDRAM with cacheable
+ 	.rept 0xD00 - 0xC00
+ 	FL_SECTION_ENTRY __base,3,0,1,1
+diff --git a/board/samsung/smdkc110/smdkc110.c b/board/samsung/smdkc110/smdkc110.c
+index 82db29e..b940b26 100644
+--- a/board/samsung/smdkc110/smdkc110.c
++++ b/board/samsung/smdkc110/smdkc110.c
+@@ -248,7 +248,8 @@ int checkboard(void)
+ ulong virt_to_phy_smdkc110(ulong addr)
+ {
+ 	if ((0xc0000000 <= addr) && (addr < 0xd0000000))
+-		return (addr - 0xc0000000 + 0x20000000);
++		//return (addr - 0xc0000000 + 0x20000000);
++		return (addr - 0xc0000000 + 0x30000000); /* Bian Jiang Contiguous memory 2011.11.15 */
+ 	else
+ 		printf("The input address don't need "\
+ 			"a virtual-to-physical translation : %08lx\n", addr);
+diff --git a/include/configs/smdkv210single.h b/include/configs/smdkv210single.h
+index c6848b6..5203e20 100644
+--- a/include/configs/smdkv210single.h
++++ b/include/configs/smdkv210single.h
+@@ -60,7 +60,8 @@
+ /* skip to load BL2 */
+ //#define FAST_BOOT		1
+ 
+-#define MEMORY_BASE_ADDRESS	0x20000000
++//#define MEMORY_BASE_ADDRESS	0x20000000
++#define MEMORY_BASE_ADDRESS	0x30000000 /* Bian Jiang Contiguous memory 2011.11.15 */
+ 
+ /* input clock of PLL */
+ #define CONFIG_SYS_CLK_FREQ	24000000	/* the SMDK6400 has 24MHz input clock */
+@@ -401,7 +402,8 @@
+ 
+ #if defined(CONFIG_MCP_SINGLE)
+ 
+-#define DMC0_MEMCONFIG_0	0x20f01313
++//#define DMC0_MEMCONFIG_0	0x20f01313
++#define DMC0_MEMCONFIG_0	0x30f01313  /* Bian Jiang Contiguous memory 2011.11.15 */
+ #define DMC0_MEMCONFIG_1	0x1ef01313
+ #define DMC0_TIMINGA_REF	0x00000618	// TimingAref	7.8us*133MHz=1038(0x40E), 100MHz=780(0x30C), 20MHz=156(0x9C), 10MHz=78(0x4E)
+ #define DMC0_TIMING_ROW		0x28233287	// TimingRow	for @200MHz
+@@ -465,7 +467,8 @@
+ #define SDRAM_BANK_SIZE         0x10000000    /* 256 MB */
+ #define PHYS_SDRAM_1            MEMORY_BASE_ADDRESS /* SDRAM Bank #1 */
+ #define PHYS_SDRAM_1_SIZE       SDRAM_BANK_SIZE
+-#define PHYS_SDRAM_2            (MEMORY_BASE_ADDRESS + SDRAM_BANK_SIZE+ SDRAM_BANK_SIZE) /* SDRAM Bank #2 */
++//#define PHYS_SDRAM_2            (MEMORY_BASE_ADDRESS + SDRAM_BANK_SIZE + SDRAM_BANK_SIZE) /* SDRAM Bank #2 */
++#define PHYS_SDRAM_2            (MEMORY_BASE_ADDRESS + SDRAM_BANK_SIZE) /* SDRAM Bank #2 */ /* Bian Jiang Contiguous memory 2011.11.15 */
+ #define PHYS_SDRAM_2_SIZE       SDRAM_BANK_SIZE
+ 
+ #define CFG_FLASH_BASE		0x80000000
+@@ -514,7 +517,8 @@
+ #ifdef CONFIG_ENABLE_MMU
+ #define CFG_UBOOT_BASE		0xc3e00000
+ #else
+-#define CFG_UBOOT_BASE		0x23e00000
++//#define CFG_UBOOT_BASE		0x23e00000
++#define CFG_UBOOT_BASE		0x33e00000  /* Bian Jiang Contiguous memory 2011.11.15 */
+ #endif
+ 
+ #define CFG_PHY_UBOOT_BASE	MEMORY_BASE_ADDRESS + 0x3e00000
+@@ -603,7 +607,8 @@
+ 
+ #define CONFIG_BOOTDELAY	3
+ #if defined(CFG_FASTBOOT_NANDBSP)
+-#define CONFIG_BOOTCOMMAND	"nand read C0008000 600000 500000; nand read 20C00000 B00000 200000; bootm C0008000 20C00000"  
++//#define CONFIG_BOOTCOMMAND	"nand read C0008000 600000 500000; nand read 20C00000 B00000 200000; bootm C0008000 20C00000"
++#define CONFIG_BOOTCOMMAND	"nand read C0008000 600000 500000; nand read 30B00000 B00000 300000; bootm C0008000 30B00000"   /* Bian Jiang Contiguous memory 2011.11.15 */
+ #elif defined(CFG_FASTBOOT_SDMMCBSP)
+ #define CONFIG_BOOTCOMMAND	"movi read kernel C0008000; movi read rootfs 30A00000 180000; bootm C0008000 30A00000"
+ #endif
+
+#+END_EXAMPLE
