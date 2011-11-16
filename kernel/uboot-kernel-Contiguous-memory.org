@@ -67,13 +67,19 @@ fastboot_ptentry ptable_default[] =
 * 主要修改的文件:
 
 #+BEGIN_EXAMPLE
+ uboot
  board/samsung/smdkc110/lowlevel_init.S |   22 +++++++++++++++++++++-
  board/samsung/smdkc110/smdkc110.c      |    3 ++-
  include/configs/smdkv210single.h       |   15 ++++++++++-----
+
+ kernel
+ arch/arm/mach-s5pv210/Makefile.boot         |    7 +++++--
+ arch/arm/mach-s5pv210/include/mach/map.h    |    3 ++-
+ arch/arm/mach-s5pv210/include/mach/memory.h |    3 ++-
 #+END_EXAMPLE
 
 * 修改代码如下:
-
+ * uboot 修改的代码
 #+BEGIN_EXAMPLE
 diff --git a/board/samsung/smdkc110/lowlevel_init.S b/board/samsung/smdkc110/lowlevel_init.S
 index b75c6c9..08c5aae 100644
@@ -202,3 +208,51 @@ index c6848b6..5203e20 100644
  #endif
 
 #+END_EXAMPLE
+
+ * kernel 修改的代码
+#+BEGIN_EXAMPLE
+diff --git a/arch/arm/mach-s5pv210/Makefile.boot b/arch/arm/mach-s5pv210/Makefile.boot
+index fe0a78a..aac6516 100644
+--- a/arch/arm/mach-s5pv210/Makefile.boot
++++ b/arch/arm/mach-s5pv210/Makefile.boot
+@@ -1,5 +1,8 @@
+-zreladdr-y	:= 0x20008000
+-params_phys-y	:= 0x20000100
++zreladdr-y	:= 0x30008000
++params_phys-y	:= 0x30000100
++
++# zreladdr-y	:= 0x20008000
++# params_phys-y	:= 0x20000100
+ 
+ # override for Herring
+ zreladdr-$(CONFIG_MACH_HERRING)	:= 0x30008000
+diff --git a/arch/arm/mach-s5pv210/include/mach/map.h b/arch/arm/mach-s5pv210/include/mach/map.h
+index 167ea87..079b1b5 100644
+--- a/arch/arm/mach-s5pv210/include/mach/map.h
++++ b/arch/arm/mach-s5pv210/include/mach/map.h
+@@ -154,7 +154,8 @@
+ #define S5P_SZ_IPC		S5PV210_SZ_IPC
+ 
+ #if defined(CONFIG_MACH_SMDKV210)
+-#define S5PV210_PA_SDRAM	(0x20000000)
++/* #define S5PV210_PA_SDRAM	(0x20000000) */
++#define S5PV210_PA_SDRAM	(0x30000000) /* Bian Jiang Contiguous memory 2011.11.15 */
+ #else
+ #define S5PV210_PA_SDRAM	(0x30000000)
+ #endif
+diff --git a/arch/arm/mach-s5pv210/include/mach/memory.h b/arch/arm/mach-s5pv210/include/mach/memory.h
+index 4a42ccf..2783e33 100644
+--- a/arch/arm/mach-s5pv210/include/mach/memory.h
++++ b/arch/arm/mach-s5pv210/include/mach/memory.h
+@@ -14,7 +14,8 @@
+ #define __ASM_ARCH_MEMORY_H
+ 
+ #if defined(CONFIG_MACH_SMDKV210)
+-#define PHYS_OFFSET		UL(0x20000000)
++/* #define PHYS_OFFSET		UL(0x20000000) */
++#define PHYS_OFFSET		UL(0x30000000) /* Bian Jiang Contiguous memory 2011.11.15 */
+ #else
+ #define PHYS_OFFSET		UL(0x30000000)
+ #endif
+#+END_EXAMPLE
+
