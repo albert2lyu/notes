@@ -194,3 +194,19 @@ device/samsung/smdkv210/device.mk
 
 #+END_SRC
     [[http://stackoverflow.com/questions/4603465/sipmanager-newinstance-not-working-for-android-gingerbread][How to enable SIP in Android2.3 emulator]]
+
+
+** external中的程序自动拷贝到/system/bin目录下面
+在Android.mk中增加, 更多的环境变量参考build/core/envsetup.mk
+#+BEGIN_SRC bash
+LOCAL_MODULE_PATH := $(TARGET_OUT_EXECUTABLES)
+#+END_SRC
+
+** 二进制文件自启动
+把源文件拷贝到frameworks/base目录下，修改 init.rc增加一个服务.
+#+BEGIN_SRC bash
+# Bian Jiang Add test bin
+service hello  /system/bin/hello
+#   oneshot
+#+END_SRC
+
