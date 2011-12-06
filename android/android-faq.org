@@ -69,6 +69,11 @@ The full instructions are at http://source.android.com/source/downloading.html
 #+END_SRC
 
 * Frameworks
+** 生成ctags
+#+BEGIN_SRC bash
+ctags -R --exclude=”\.svn” --exclude=”\.git” --exclude=out --languages=-JavaScript,-HTML,-Sh,-Make,-Asm,-Python .
+#+END_SRC
+
 ** 在状态栏中增加图标
 参考文件： /frameworks/base/services/java/com/android/server/status/StatusBarPolicy.java
 

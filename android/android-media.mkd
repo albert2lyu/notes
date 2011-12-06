@@ -1,0 +1,18 @@
+Android Media
+==============
+
+
+Camera Record
+--------------
+
+
+
+HTTP/RTSP/File Player
+----------------------
+
+### Work Flow ###
+	 * frameworks/base/media/libmediaplayerservice/StagefrightPlayer.cpp
+	 * frameworks/base/media/libstagefright/AwesomePlayer.cpp 
+       open libstagefrighthw.so lib
+     * device/samsung/proprietary/libstagefrighthw/SecHardwareRenderer.cpp
+
