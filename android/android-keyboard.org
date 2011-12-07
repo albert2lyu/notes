@@ -1,10 +1,7 @@
-Android Keyboard Bind
-======================
+#+TITLE Android Keyboard Bind
 
-
-Key-bind-application.patch for Android 2.3.1
-----------------------------------------------
-<code>
+* Key-bind-application.patch for Android 2.3.1
+#+BEGIN_EXAMPLE
 From c3e9230049c9ffd8edd693b973123311832fdf1a Mon Sep 17 00:00:00 2001
 From: Bian Jiang <borderj@gmail.com>
 Date: Wed, 7 Dec 2011 16:49:36 +0800
@@ -293,5 +290,5 @@ index 143fec5..d8f7474 100644
                  }
 -- 
 1.7.4.1
-</code>
+#+BEGIN_END
 
