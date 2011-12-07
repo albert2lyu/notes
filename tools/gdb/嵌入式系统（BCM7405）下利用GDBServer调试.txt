@@ -1,0 +1,57 @@
+作者： Sam（甄峰） sam_code@hotmail.com
+ 
+Sam需要在BCM7405下建立一个调试环境。呵呵，也就是GDBServer+GDB。之前在其它平台已经做过类似的工作。但时间久了，忘记了。所以今天作个备份。并尝试将调试简化到Windows下开发人员习惯的方式。
+ 
+首先查看开发板，发现GDBServer已经存在。于是使用GDBServer+GDB的方式尝试调试动作。
+ 
+0. 环境介绍如下：
+test是一个自己写的不断分配内存的程序，用它做调试例子
+BCM7405开发板：IP：192.168.222.43
+Linux PC: FC8. IP: 192.168.222.222
+ 
+1. BCM7405开发板上：
+#gdbserver 1192.168.222.222:1234  test
+Process test created; pid = 145
+Listening on port 1234
+含义为：Debug test这个程序。调试方为172.16.1.39, 端口为1234.
+ 
+2. 在Linux ＰＣ上：
+#mipsel-linux-gdb test
+结果显示缺少libexpat.so.0。 Sam在/usr/lib下发现了 libexpat.so -> ../../lib/libexpat.so.1.5.2。
+这是因为toolchain创建时用的库与Sam PC下版本不同造成的。 Sam直接作了个软连接。
+#ln -s libexpat.so libexpat.so.0
+再次运行，成功了。
+ 
+#mipsel-linux-gdb test
+GNU gdb 6.6.0.20070423-cvs
+Copyright (C) 2006 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "--host=mipsel-linux --target=mipsel-linux-uclibc"...
+(gdb)
+ 
+3.正式连接GDBServer. 调试之。
+在Linux PC上：
+使用gdb中命令连接远端 gdbserver. IP: 192.168.222.43. port:1234
+(gdb) target remote 192.168.222.43:1234
+Remote debugging using 192.168.222.43:1234
+warning: Remote failure reply: E01
+warning: Unable to find dynamic linker breakpoint function.
+GDB will be unable to debug shared library initializers
+and track explicitly loaded dynamic code.
+0x2aaa8fd0 in ?? ()
+此时发现嵌入式板子上有反应：
+Remote debugging from host 172.16.1.39
+则表明嵌入式板子和Host Debug链接成功，则可以在Host上调试嵌入式板子上的程序了。
+ 
+//查看代码
+(gdb) l  
+//设置breakpoint
+(gdb) b 11 
+ 
+//开始运行。 注意，因为GDBServer已经将程序开始运行了。所以不能再使用 （gdb） run. 而是（gdb）c
+(gdb) c
+ 
+ 

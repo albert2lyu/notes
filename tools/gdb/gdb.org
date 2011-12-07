@@ -1,0 +1,10 @@
+#+TITLE: Cross Compile gdb for ARM
+#+AUTHOR: Bian Jiang
+#+EMAIL: borderj@gmail.com
+#+LINK_HOME: http://wifihack.net
+#+KEYWORDS: Kernel, gdb, tracepoints, crosscompile
+
+* Building For ARM
+#+BEGIN_SRC bash
+ ./configure --host=arm-none-linux-gnueabi --target=arm-none-linux-gnueabi --prefix=/work/rootfs/arm
+#+END_SRC
