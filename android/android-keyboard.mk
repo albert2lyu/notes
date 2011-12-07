@@ -1,0 +1,297 @@
+Android Keyboard Bind
+======================
+
+
+Key-bind-application.patch for Android 2.3.1
+----------------------------------------------
+<code>
+From c3e9230049c9ffd8edd693b973123311832fdf1a Mon Sep 17 00:00:00 2001
+From: Bian Jiang <borderj@gmail.com>
+Date: Wed, 7 Dec 2011 16:49:36 +0800
+Subject: [PATCH] KeyBoard: add PSTN/VXI/IMS/CRM Key bind application
+
+---
+ device/samsung/smdkv210/s3c-keypad.kl              |   10 +-
+ .../webkit/WebKit/android/plugins/ANPKeyCodes.h    |    2 +
+ frameworks/base/api/current.xml                    |   22 +++++
+ .../base/core/java/android/view/KeyEvent.java      |   11 +++-
+ frameworks/base/core/res/res/values/attrs.xml      |    2 +
+ frameworks/base/include/ui/KeycodeLabels.h         |    2 +
+ frameworks/base/native/include/android/keycodes.h  |    2 +
+ .../android/internal/policy/impl/PhoneWindow.java  |   83 +++++++++++++++++++-
+ 8 files changed, 125 insertions(+), 9 deletions(-)
+
+diff --git a/device/samsung/smdkv210/s3c-keypad.kl b/device/samsung/smdkv210/s3c-keypad.kl
+index 5bf977d..dd04734 100644
+--- a/device/samsung/smdkv210/s3c-keypad.kl
++++ b/device/samsung/smdkv210/s3c-keypad.kl
+@@ -6,16 +6,16 @@ key 2     1                 WAKE_DROPPED
+ key 3     2                 WAKE_DROPPED
+ key 4     3                 WAKE_DROPPED
+ key 216   HOME              WAKE
+-key 212   CAMERA            WAKE_DROPPED
+-key 30    HEADSETHOOK       WAKE_DROPPED
+-key 200   MEDIA_PLAY_PAUSE  WAKE_DROPPED
++key 212   MENU              WAKE_DROPPED
++key 30    BACK              WAKE_DROPPED
++key 200   SEARCH            WAKE_DROPPED
+ key 103   DPAD_UP           WAKE_DROPPED
+ 
+ key 5     4                 WAKE_DROPPED
+ key 6     5                 WAKE_DROPPED
+ key 7     6                 WAKE_DROPPED
+-key 102   BACK              WAKE
+-key 155   MENU              WAKE_DROPPED
++key 102   PSTN              WAKE
++key 155   VXI               WAKE_DROPPED
+ key 217   CTI               WAKE
+ key 150   CRM               WAKE
+ key 105   DPAD_LEFT         WAKE_DROPPED
+diff --git a/external/webkit/WebKit/android/plugins/ANPKeyCodes.h b/external/webkit/WebKit/android/plugins/ANPKeyCodes.h
+index 146f159..8037dc3 100644
+--- a/external/webkit/WebKit/android/plugins/ANPKeyCodes.h
++++ b/external/webkit/WebKit/android/plugins/ANPKeyCodes.h
+@@ -148,6 +148,8 @@ enum ANPKeyCodes {
+     kButtonRed_ANPKeyCode = 112,
+     kButtonCTI_ANPKeyCode = 113,
+     kButtonCRM_ANPKeyCode = 114,
++    kButtonPSTN_ANPKeyCode = 115,
++    kButtonVXI_ANPKeyCode = 116,
+ 
+ 
+     // NOTE: If you add a new keycode here you must also add it to several other files.
+diff --git a/frameworks/base/api/current.xml b/frameworks/base/api/current.xml
+index e1fa732..4e3b8f5 100644
+--- a/frameworks/base/api/current.xml
++++ b/frameworks/base/api/current.xml
+@@ -180284,6 +180284,17 @@
+  visibility="public"
+ >
+ </field>
++<field name="KEYCODE_PSTN"
++ type="int"
++ transient="false"
++ volatile="false"
++ value="115"
++ static="true"
++ final="true"
++ deprecated="not deprecated"
++ visibility="public"
++>
++</field>
+ <field name="KEYCODE_Q"
+  type="int"
+  transient="false"
+@@ -180537,6 +180548,17 @@
+  visibility="public"
+ >
+ </field>
++<field name="KEYCODE_VXI"
++ type="int"
++ transient="false"
++ volatile="false"
++ value="116"
++ static="true"
++ final="true"
++ deprecated="not deprecated"
++ visibility="public"
++>
++</field>
+ <field name="KEYCODE_W"
+  type="int"
+  transient="false"
+diff --git a/frameworks/base/core/java/android/view/KeyEvent.java b/frameworks/base/core/java/android/view/KeyEvent.java
+index 7c36f83..32dd6f7 100755
+--- a/frameworks/base/core/java/android/view/KeyEvent.java
++++ b/frameworks/base/core/java/android/view/KeyEvent.java
+@@ -346,6 +346,15 @@ public class KeyEvent extends InputEvent implements Parcelable {
+      *  Add by zjs 2011.08.31 */
+     public static final int KEYCODE_CRM             = 114;
+ 
++    /** Key code constant: VC1000 for PSTN key.
++     *  Add by Jiang Bian 2011.12.7 */
++    public static final int KEYCODE_PSTN             = 115;
++
++    /** Key code constant: VC1000 for VXI/IMS key.
++     *  Add by Jiang Bian 2011.12.7 */
++    public static final int KEYCODE_VXI             = 116;
++
++
+ 
+     // NOTE: If you add a new keycode here you must also add it to:
+     //  isSystem()
+@@ -363,7 +372,7 @@ public class KeyEvent extends InputEvent implements Parcelable {
+     //  those new codes.  This is intended to maintain a consistent
+     //  set of key code definitions across all Android devices.
+    
+-    private static final int LAST_KEYCODE           = KEYCODE_CRM;
++    private static final int LAST_KEYCODE           = KEYCODE_VXI;
+     
+     /**
+      * @deprecated There are now more than MAX_KEYCODE keycodes.
+diff --git a/frameworks/base/core/res/res/values/attrs.xml b/frameworks/base/core/res/res/values/attrs.xml
+index a83a7df..5e45cd3 100755
+--- a/frameworks/base/core/res/res/values/attrs.xml
++++ b/frameworks/base/core/res/res/values/attrs.xml
+@@ -957,6 +957,8 @@
+         <enum name="KEYCODE_RED" value="112" />
+         <enum name="KEYCODE_CTI" value="113" />
+         <enum name="KEYCODE_CRM" value="114" />
++        <enum name="KEYCODE_PSTN" value="115" />
++        <enum name="KEYCODE_VXI" value="116" />
+     </attr>
+ 
+     <!-- ***************************************************************** -->
+diff --git a/frameworks/base/include/ui/KeycodeLabels.h b/frameworks/base/include/ui/KeycodeLabels.h
+index 9851c35..c8414c8 100755
+--- a/frameworks/base/include/ui/KeycodeLabels.h
++++ b/frameworks/base/include/ui/KeycodeLabels.h
+@@ -143,6 +143,8 @@ static const KeycodeLabel KEYCODES[] = {
+     // Add for VC1000 XiKang Demo by zjs 2011.08.31
+     { "CTI", 113 },
+     { "CRM", 114 },
++    { "PSTN", 115 },
++    { "VXI", 116 },
+ 
+     // NOTE: If you add a new keycode here you must also add it to several other files.
+     //       Refer to frameworks/base/core/java/android/view/KeyEvent.java for the full list.
+diff --git a/frameworks/base/native/include/android/keycodes.h b/frameworks/base/native/include/android/keycodes.h
+index 209685b..b4e6700 100644
+--- a/frameworks/base/native/include/android/keycodes.h
++++ b/frameworks/base/native/include/android/keycodes.h
+@@ -158,6 +158,8 @@ enum {
+     AKEYCODE_RED             = 112,
+     AKEYCODE_CTI             = 113,
+     AKEYCODE_CRM             = 114,
++    AKEYCODE_PSTN             = 115,
++    AKEYCODE_VXI             = 116,
+ 
+ 
+     // NOTE: If you add a new keycode here you must also add it to several other files.
+diff --git a/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindow.java b/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindow.java
+index 143fec5..d8f7474 100644
+--- a/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindow.java
++++ b/frameworks/base/policy/src/com/android/internal/policy/impl/PhoneWindow.java
+@@ -165,6 +165,14 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+     static final String pstnUIPop = "pstn.ui.pop";
+     static final String handFreeSwitch = "pstn.handfree.switch";
+ 
++    /* IMS/VXI app Bind Key By: Jiang Bian 2011.12.7*/
++    static final String imsClass = "org.doubango.imsdroid";
++    static final String imsMain = "org.doubango.imsdroid.Main";
++
++    /* CRM/Contants app Bind Key By: Jiang Bian 2011.12.7*/
++    static final String crmClass = "com.android.contacts";
++    static final String crmMain = "com.android.contacts.ContactsListActivity";
++
+     private TelephonyManager mTelephonyManager = null;
+     
+     public PhoneWindow(Context context) {
+@@ -1179,7 +1187,7 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+             case KeyEvent.KEYCODE_MUTE:
+ 		Intent switchIntent = new Intent(handFreeSwitch);
+                  getContext().sendBroadcast(switchIntent);
+-		 return true;
++                 return true;
+             case KeyEvent.KEYCODE_HEADSETHOOK:
+             case KeyEvent.KEYCODE_MEDIA_STOP:
+             case KeyEvent.KEYCODE_MEDIA_NEXT:
+@@ -1243,8 +1251,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+                     } catch (ActivityNotFoundException e) {
+                         startCallActivity();
+                     }
++                    return true;
+                 }
+-                return true;
+             }
+ 
+             case KeyEvent.KEYCODE_SEARCH: {
+@@ -1279,6 +1287,74 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+                 }
+                 break;
+             }
++
++            case KeyEvent.KEYCODE_PSTN: {
++                if (getKeyguardManager().inKeyguardRestrictedInputMode()
++                        || dispatcher == null) {
++                    break;
++                }
++                if (event.getRepeatCount() == 0) {
++                    dispatcher.startTracking(event, this);
++                } else if (dispatcher.isTracking(event)) {
++                    dispatcher.performedLongPress(event);
++                    mDecor.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
++                    try {
++                        sendCloseSystemWindows();
++                        startCallActivity();
++                    } catch (ActivityNotFoundException e) {
++                        startCallActivity();
++                    }
++                    return true;
++                }
++            }
++
++
++            case KeyEvent.KEYCODE_VXI: {
++                if (getKeyguardManager().inKeyguardRestrictedInputMode()
++                        || dispatcher == null) {
++                    break;
++                }
++                if (event.getRepeatCount() == 0) {
++                    dispatcher.startTracking(event, this);
++                } else if (dispatcher.isTracking(event)) {
++                    dispatcher.performedLongPress(event);
++                    mDecor.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
++                    // launch the VXI/IMS
++                    Intent intent = new Intent();
++                    intent.setClassName(imsClass, imsMain);		
++                    try {
++                        sendCloseSystemWindows();
++                        getContext().startActivity(intent);
++                    } catch (ActivityNotFoundException e) {
++                        // Ignore
++                    }
++                    return true;
++                }
++            }
++
++            case KeyEvent.KEYCODE_CRM: {
++                if (getKeyguardManager().inKeyguardRestrictedInputMode()
++                        || dispatcher == null) {
++                    break;
++                }
++                if (event.getRepeatCount() == 0) {
++                    dispatcher.startTracking(event, this);
++                } else if (dispatcher.isTracking(event)) {
++                    dispatcher.performedLongPress(event);
++                    mDecor.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
++                    // launch the CRM/Contacts
++                    Intent intent = new Intent();
++                    intent.setClassName(crmClass, crmMain);		
++                    try {
++                        sendCloseSystemWindows();
++                        getContext().startActivity(intent);
++                    } catch (ActivityNotFoundException e) {
++                        // Ignore
++                    }
++                    return true;
++                }
++            }
++
+         }
+ 
+         return false;
+@@ -1387,7 +1463,8 @@ public class PhoneWindow extends Window implements MenuBuilder.Callback {
+                 return true;
+             }
+ 
+-            case KeyEvent.KEYCODE_CALL: {
++            case KeyEvent.KEYCODE_CALL:
++            case KeyEvent.KEYCODE_PSTN: {
+                 if (getKeyguardManager().inKeyguardRestrictedInputMode()) {
+                     break;
+                 }
+-- 
+1.7.4.1
+</code>
+
