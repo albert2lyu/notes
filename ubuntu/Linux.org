@@ -1,5 +1,50 @@
 #+TITLE Linux Config
 
+* 编译Ubuntu内核
+  * 相关的工具集
+#+BEGIN_SRC bash
+sudo su -
+apt-get install fakeroot build-essential
+apt-get install crash kexec-tools makedumpfile kernel-wedge kernel-package
+apt-get build-dep linux
+apt-get install git-core libncurses5 libncurses5-dev
+apt-get install libelf-dev libdw-dev asciidoc binutils-dev
+exit
+#+E#ND_SRC
+  * 编译
+#+BEGIN_SRC bash
+make-kpkg clean # only needed if you want to do a "clean" build
+make-kpkg --rootcmd fakeroot --initrd --append-to-version=-kvbian kernel-image kernel-headers
+#+END_SRC
+
+
+* dpkg快速使用手册
+#+BEGIN_EXAMPLE
+安装卸载deb包
+dpkg -i package.deb         安装包
+dpkg -r package         删除包
+dpkg -P package         删除包（包括配置文件）
+
+查询已安装的deb包信息
+dpkg -L package         列出与该包关联的文件
+dpkg -l                       查看系统当前安装的包
+dpkg -l package         显示该包的版本
+dpkg -s package               显示该包信息
+
+dpkg -S keyword         搜索所属的包内容
+dpkg -S 文件路径              查询文件所属的包，同 rpm -qf
+dpkg -l             列出当前已安装的包
+dpkg --configure package    配置包
+
+查询未安装的deb包
+dpkg -c  *.deb                # 列出包中的文件，同 rpm -qpl
+dpkg -I  *.deb                #（大i）查看包的信息，同 rpm -qpi
+
+其他选项
+dpkg --unpack package.deb   解开 deb 包的内
+#+END_EXAMPLE
+
+
 * 64位系统运行32位的程序
   * 需要安装ia32-libs库
 #+BEGIN_SRC bash
@@ -44,3 +89,4 @@
   * 参考:
     * [[https://wiki.ubuntu.com/X/Config/Resolution][Resolution]]
     * [[http://www.grenage.com/xorg.html][Xorg.conf and incorrect resolution detection]]
+
