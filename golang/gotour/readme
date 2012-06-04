@@ -1,7 +1,9 @@
 Go Tour(Go指南) 练习
 http://go-tour-zh.appsp0t.com
 
-1. sqrt.go 牛顿法实现开方函数
-http://go-tour-zh.appsp0t.com/#44
+1. sqrt.go 牛顿法实现开方函数(p43)
+http://go-tour-zh.appsp0t.com/#43
 
+2. wordCount.go 实现 WordCount(p44)
+http://go-tour-zh.appsp0t.com/#44
 
