@@ -1,11 +1,14 @@
 #+TITLE: Emacs学习笔记
 #+AUTHOR: Jiang Bian
 #+EMAIL: borderj@gmail.com
+#+DATE: 2012.08.16
+#+VERSION: v0.2 
 #+LINK_HOME: http://wifihack.net
 
 * 快捷键
 
-#+TABLE: Emacs 快捷键
+** 删除快捷键
+#+TABLE: 删除快捷键
 #+STARTUP: align
 #+ATTR_HTML: border="2" rules="all" frame="all"
 |------+---------------+-------------------------+----------------------------------------------------|
@@ -37,3 +40,31 @@
 |      | (none)        | append-to-file          | 将区域中内容复制到一个文件中                       |
 |      | (none)        | cua-mode                | 启用/停用CUA绑定                                   |
 |------+---------------+-------------------------+----------------------------------------------------|
+
+** 窗口快捷键
+#+TABLE: 窗口快捷键
+#+STARTUP: align
+#+ATTR_HTML: border="2" rules="all" frame="all"
+|-----------+-------------------------------------+----------------------------------------|
+| 按键      | 命令                                | 作用                                   |
+|-----------+-------------------------------------+----------------------------------------|
+| C-x 2     | split-window-vertically             | 垂直拆分窗口                           |
+| C-x 3     | split-window-horizontally           | 水平拆分窗口                           |
+| C-x o     | other-window                        | 选择下一个窗口                         |
+| C-M-v     | scroll-other-window                 | 滚动下一个窗口                         |
+| C-x 4 b   | switch-to-buffer-other-window       | 在另一个窗口打开缓冲                   |
+| C-x 4 C-o | display-buffer                      | 在另一个窗口打开缓冲，但不选中         |
+| C-x 4 f   | find-file-other-window              | 在另一个窗口打开文件                   |
+| C-x 4 d   | dired-other-window                  | 在另一个窗口打开文件夹                 |
+| C-x 4 m   | mail-other-window                   | 在另一个窗口写邮件                     |
+| C-x 4 r   | find-file-read-only-other-window    | 在另一个窗口以只读方式打开文件         |
+| C-x 0     | delete-window                       | 关闭当前窗口                           |
+| C-x 1     | delete-other-windows                | 关闭其它窗口                           |
+| C-x 4 0   | kill-buffer-and-window              | 关闭当前窗口和缓冲                     |
+| C-x ^     | enlarge-window                      | 增高当前窗口                           |
+| C-x {     | shrink-window-horizontally          | 将当前窗口变窄                         |
+| C-x }     | enlarge-window-horizontally         | 将当前窗口变宽                         |
+| C-x -     | shrink-window-if-larger-than-buffer | 如果窗口比缓冲大就缩小                 |
+| C-x +     | balance-windows                     | 所有窗口一样高                         |
+|           | windmove-right                      | 切换到右边的窗口(类似：up, down, left) |
+|-----------+-------------------------------------+----------------------------------------|
