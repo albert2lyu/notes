@@ -1,10 +1,10 @@
 package main
 
 import (
-    "flag"
-    "log"
-    "net/http"
-    "text/template"
+	"flag"
+	"log"
+	"net/http"
+	"text/template"
 )
 
 var (
@@ -14,21 +14,20 @@ var (
 	index = template.Must(template.ParseFiles("index.html"))
 )
 
-
 func main() {
-    flag.Parse()
-    http.Handle("/", http.HandlerFunc(QR))
-    log.Println("Listened On" + *addr)
-    err := http.ListenAndServe(*addr, nil)
-    if err != nil {
-        log.Fatal("ListenAndServe:", err)
-    }
+	flag.Parse()
+	http.Handle("/", http.HandlerFunc(QR))
+	log.Println("Listened On" + *addr)
+	err := http.ListenAndServe(*addr, nil)
+	if err != nil {
+		log.Fatal("ListenAndServe:", err)
+	}
 }
 
 func QR(w http.ResponseWriter, req *http.Request) {
-    //templ.Execute(w, req.FormValue("s"))
-    //index.Execute(w, req.FormValue("s"))
-    w.Write([]byte("hello, world"))
+	//templ.Execute(w, req.FormValue("s"))
+	//index.Execute(w, req.FormValue("s"))
+	w.Write([]byte("hello, world"))
 }
 
 const templateStr = `
