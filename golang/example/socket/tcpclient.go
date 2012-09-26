@@ -1,14 +1,19 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"net"
 	"sync"
 )
 
+var (
+	c = flag.Int("count", 30000, "Connection Count")
+)
+
 func main() {
 	var wg sync.WaitGroup
-	for i := 0; i < 20000; i++ {
+	for i := 0; i < *c; i++ {
 		wg.Add(1)
 		go func(wg *sync.WaitGroup) {
 			client(wg)
