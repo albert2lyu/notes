@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"time"
 )
 
 var (
@@ -32,8 +32,17 @@ func Connect(nurl *url.URL) {
 	rwc, br := clientconn.Hijack()
 	defer rwc.Close()
 
-	body, err := ioutil.ReadAll(br)
-	fmt.Println(string(body))
+	for {
+		buf := make([]byte, 100)
+		s, err := br.Read(buf)
+		if err != nil {
+			fmt.Println("Read Err: " + err.Error())
+		}
+		fmt.Printf("size: %d, buf: %s\n", s, string(buf))
+		time.Sleep(1 * time.Second)
+		buf = nil
+	}
+	time.Sleep(5 * time.Second)
 }
 
 func main() {

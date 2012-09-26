@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -24,16 +25,24 @@ func hijack(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	// Don't forget to close the connection:
+
 	defer rwc.Close()
 	if bufrw != nil {
 		bufrw.Flush()
 	}
-	bufrw.WriteRune('\n')
-	bufrw.WriteString("Now we're speaking raw TCP. Say hi: ")
-	bufrw.WriteString(time.Now().String())
-	bufrw.Flush()
-	//time.Sleep(10 * time.Second)
+
+	bufrw.WriteRune('\n') // 为什么必须要这句，如果没有client收不到数据
+
+	count := 0
+	for {
+		count++
+		bufrw.WriteString(strconv.Itoa(count))
+		bufrw.WriteString(", Now we're speaking raw TCP. Say hi: ")
+		bufrw.WriteString(time.Now().String())
+		bufrw.Flush()
+		time.Sleep(1 * time.Second)
+	}
+	time.Sleep(10 * time.Second)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
