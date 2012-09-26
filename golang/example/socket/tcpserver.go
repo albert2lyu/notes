@@ -37,10 +37,9 @@ func main() {
 }
 
 func countfun() {
-	t := time.Tick(1 * time.Second)
 	for {
 		select {
-		case <-t:
+		case <-time.Tick(1 * time.Second):
 			fmt.Println(count)
 		}
 	}
