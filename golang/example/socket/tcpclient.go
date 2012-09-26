@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"net"
+	"strconv"
 	"sync"
 )
 
@@ -20,7 +21,7 @@ func main() {
 		}(&wg)
 	}
 	wg.Wait()
-	fmt.Println("Done!")
+	fmt.Println(strconv.Itoa(*c) + " Done!")
 }
 
 func client(wg *sync.WaitGroup) {
