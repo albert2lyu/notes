@@ -1,12 +1,15 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strconv"
 	"time"
 )
 
@@ -29,20 +32,50 @@ func Connect(nurl *url.URL) {
 	clientconn.Do(&req)
 	defer clientconn.Close()
 
-	rwc, br := clientconn.Hijack()
+	rwc, _ := clientconn.Hijack()
 	defer rwc.Close()
 
+	go func(rwc io.ReadWriteCloser) {
+		bufRead(rwc)
+	}(rwc)
+
+	bufWrite(rwc)
+
+	time.Sleep(5 * time.Second)
+}
+
+func bufWrite(rwc io.ReadWriteCloser) {
+	bufrw := bufio.NewWriter(rwc)
+	count := 0
+
+	if bufrw != nil {
+		bufrw.Flush()
+	}
+
+	bufrw.WriteRune('\n') // 为什么必须要这句，如果没有client收不到数据
+
 	for {
-		buf := make([]byte, 100)
+		count++
+		bufrw.WriteString(strconv.Itoa(count))
+		bufrw.WriteString(", Client Say: ")
+		bufrw.WriteString(time.Now().String())
+		bufrw.Flush()
+		time.Sleep(1 * time.Second)
+	}
+}
+
+func bufRead(rwc io.ReadWriteCloser) {
+	buf := make([]byte, 100)
+	for {
+		br := bufio.NewReader(rwc)
 		s, err := br.Read(buf)
 		if err != nil {
-			fmt.Println("Read Err: " + err.Error())
+			// fmt.Println("Read Err: " + err.Error())
+			time.Sleep(1 * time.Second)
+			continue
 		}
-		fmt.Printf("size: %d, buf: %s\n", s, string(buf))
-		time.Sleep(1 * time.Second)
-		buf = nil
+		fmt.Printf("buf: %s, size: %d\n", string(buf), s)
 	}
-	time.Sleep(5 * time.Second)
 }
 
 func main() {
