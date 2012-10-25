@@ -33,11 +33,20 @@ func hijack(w http.ResponseWriter, r *http.Request) {
 
 	defer rwc.Close()
 
-	go func(rwc io.ReadWriteCloser) {
-		bufRead(rwc)
-	}(rwc)
+	/*
+		go func(rwc io.ReadWriteCloser) {
+			bufRead(rwc)
+		}(rwc)
 
-	bufWrite(rwc)
+		bufWrite(rwc)
+	*/
+
+	count := 0
+	for {
+		count++
+		fmt.Println(count)
+		time.Sleep(10 * time.Second)
+	}
 
 	time.Sleep(10 * time.Second)
 }

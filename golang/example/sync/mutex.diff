@@ -1,0 +1,35 @@
+--- mutex.go	2012-10-25 11:36:09.794666927 +0800
++++ mutexv2.go	2012-10-25 11:36:09.794666927 +0800
+@@ -9,8 +9,9 @@
+ )
+ 
+ type Msg struct {
+-	mutex sync.Mutex
+-	count map[int64]string
++	rmutex sync.RWMutex
++	mutex  sync.Mutex
++	count  map[int64]string
+ }
+ 
+ func (m *Msg) InitMsg(key int64, value string) {
+@@ -21,15 +22,15 @@
+ 
+ func (m *Msg) Get(key int64, c chan bool) (str string) {
+ 	defer func() { <-c }()
+-	m.mutex.Lock()
++	m.rmutex.RLock()
+ 	if _, ok := m.count[key]; !ok {
+-		m.mutex.Unlock()
++		m.rmutex.RUnlock()
+ 		m.InitMsg(key, strconv.Itoa(int(key)))
+ 	} else {
+-		m.mutex.Unlock()
++		m.rmutex.RUnlock()
+ 	}
+-	m.mutex.Lock()
+-	defer m.mutex.Unlock()
++	m.rmutex.RLock()
++	defer m.rmutex.RUnlock()
+ 	if str, ok := m.count[key]; ok {
+ 		return str
+ 	}
