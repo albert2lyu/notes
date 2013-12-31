@@ -1,0 +1,94 @@
+
+/*
+ * Bubble Sort 冒泡排序法O(n^2)
+ * 将待排序的元素看作是竖着排列的“气泡”，较小的元素比较轻，从而要往上浮
+ * 在要排序的一组数中，对当前还未排好序的范围内的全部数，自上
+ * 而下对相邻的两个数依次进行比较和调整，让较大的数往下沉，较
+ * 小的往上冒。即：每当两相邻的数比较后发现它们的排序与排序要
+ * 求相反时，就将它们互换。
+ * 冒泡排序是稳定的。算法时间复杂度O(n2)--[n的平方]
+ */
+void bubble_sort(int *array, int len) {
+    int i, j , tmp;
+    for (i=(len -1); i > 0; i--) {
+        for (j = 1, j <= i; j++) {
+            if (array[j-1] > array[j]) {
+                tmp = array[j-1];
+                array[j-1] = array[j];
+                array[j] = tmp;
+            }
+        }
+    }
+}
+
+/* 
+ * http://en.wikipedia.org/wiki/Insertion_sort
+ * 插入排序法 O(N^2)
+ * 逐一取出元素，在已经排序的元素序列中从后向前扫描，放到适当的位置
+ * 直接插入排序是稳定的。算法时间复杂度O(n2)--[n的平方]
+ */
+void insert_sort(int *array, unsigned int n) {
+    int i,j;
+    int tmp;
+    for (i = 1; i < n; i++) {
+        tmp = *(array + i);
+        for (j = i; j > 0 && *(array + j - 1) > tmp; j--) {
+            *(array + j) = *(array + j - 1);
+        }
+        *(array +j) = tmp; 
+    }
+}
+
+/*
+ * 先选择中间值，然后把比它小的放在左边，大的放在右边（具体的实现是从两边找，
+ * 找到一对后交换）。然后对两边分别使用这个过程（递归）
+ */
+void quick_sort(int *array, int begin, int end) {
+    if (array == NULL) {
+        return;
+    }
+    int divide = array[begin];
+    int i = begin;
+    int j = end;
+    while (i < j) {
+        while (i < j && array[j] > divide) {
+            j--;
+        }
+        array[i] = array[j]
+        while (i < j && array[i] < divide) {
+            i++;
+        }
+        array[j] = array[i];
+    }
+    array[i] = divide;
+    if (i - 1 > begin) {
+        quick_sort(array, begin, i -1);
+    }
+    if (i+1 < end) {
+        quick_sort(array, i+1, end);
+    }
+}
+
+
+/*
+ * Select Sort 选择排序 O(N^2)
+ * 首先在未排序序列中找到最小元素，存放到排序序列的起始位置，
+ * 然后，再从剩余未排序元素中继续寻找最小元素，然后放到排序序列末尾。以此递归。
+ * 选择排序是不稳定的。算法复杂度O(n2)--[n的平方]
+ */
+void select_sort(int *array, int len) {
+    int i, j, min, tmp;
+    for (i=0; i<len; i ++) {
+        min = i;
+        for (j=i+1; j<len; j++) {
+            if (*(array + j) < *(array+min)) {
+                min = j;
+            }
+        }
+        if (min != i) {
+            tmp = *(array + i);
+            *(array + i) = *(array+min);
+            *(array + min) = tmp;
+        }
+    }
+}

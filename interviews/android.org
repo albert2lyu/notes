@@ -1,0 +1,192 @@
+#+TITLE Android Interview
+
+* 美团
+** 算法
+*** 实现一个Stack的pop和push
+#+BEGIN_SRC Java
+/**
+* 使用数组实现堆栈，包括入栈、出栈、获取堆栈长度、
+* @author Adair
+*/ 
+publicclass Stack {       
+   
+  Object[] data; 
+   
+  int maxSize;   
+  //栈顶位置 
+  int top;       
+   
+  public Stack(int maxSize) {       
+      this.maxSize = maxSize;       
+      data = new Object[maxSize];       
+      top = -1;       
+  }       
+    
+  /**
+   * 获取堆栈长度
+   * @return 堆栈长度
+   */ 
+  publicint getSize() 
+  { 
+    return maxSize; 
+  } 
+   
+  /**
+   * 返回栈中元素的个数
+   * @return 栈中元素的个数
+   */ 
+  publicint getElementCount() 
+  { 
+    return top; 
+  } 
+   
+  /**
+   * 判断栈空
+   * @return 栈空
+   */ 
+  publicboolean isEmpty() 
+  { 
+    return top == -1; 
+  } 
+   
+  /**
+   * 判断栈满
+   * @return 栈满
+   */ 
+  publicboolean isFull() 
+  { 
+    return top+1 == maxSize; 
+  } 
+   
+  /**   
+   * 依次加入数据   
+   * @param data 要加入的数据通信   
+   * @return 添加是否成功   
+   */       
+  publicboolean push(Object data) {       
+    if(isFull())  
+    {       
+        System.out.println("栈已满!");       
+        returnfalse;       
+    }       
+    this.data[++top] = data;       
+    returntrue;       
+  }       
+         
+  /**   
+   * 从栈中取出数据   
+   * @return 取出的数据   
+   */       
+  public Object pop() throws Exception{       
+    if(isEmpty())  
+    {       
+        thrownew Exception("栈已空!");       
+    }       
+    returnthis.data[top--];       
+  }       
+   
+  /**
+   * 返回栈顶元素
+   * @return
+   */ 
+  public Object peek() 
+  { 
+    returnthis.data[getElementCount()];   
+  } 
+ 
+ 
+  publicstaticvoid main(String[] args) throws Exception {       
+      Stack stack=new Stack(1000);       
+      stack.push(new String("1"));       
+      stack.push(new String("2"));       
+      stack.push(new String("3"));       
+      stack.push(new String("4"));       
+      stack.push(new String("5"));   
+      System.out.println(stack.peek());  
+             
+      while(stack.top>=0)       
+      {       
+          System.out.println(stack.pop());       
+      }              
+  }       
+}      
+#+END_SRC
+
+*** 子数组的最大和
+#+BEGIN_SRC Java
+/////////////////////////////////////////////////////////////////////////////
+// Find the greatest sum of all sub-arrays
+// Return value: if the input is valid, return true, otherwise return false
+/////////////////////////////////////////////////////////////////////////////
+bool FindGreatestSumOfSubArray
+(
+      int *pData,           // an array
+      unsigned int nLength, // the length of array
+      int &nGreatestSum     // the greatest sum of all sub-arrays
+)
+{
+      // if the input is invalid, return false
+      if((pData == NULL) || (nLength == 0))
+            return false;
+
+      int nCurSum = nGreatestSum = 0;
+      for(unsigned int i = 0; i < nLength; ++i)
+      {
+            nCurSum += pData[i];
+
+            // if the current sum is negative, discard it
+            if(nCurSum < 0)
+                  nCurSum = 0;
+
+            // if a greater sum is found, update the greatest sum
+            if(nCurSum > nGreatestSum)
+                  nGreatestSum = nCurSum;
+      }
+
+ 
+      // if all data are negative, find the greatest element in the array
+      if(nGreatestSum == 0)
+      {
+            nGreatestSum = pData[0];
+            for(unsigned int i = 1; i < nLength; ++i)
+            {
+                  if(pData[i] > nGreatestSum)
+                        nGreatestSum = pData[i];
+            }
+      }
+
+      return true;
+}
+#+END_SRC
+   
+** 基本问题
+*** Service 的生命周期
+可以使用开启（start）或者绑定（bind）的方式来使Service提供服务，并且经过一些方法都可以使被服务组件（component）与Service进行IPC（进行间通信，InterProcess Communication）。
+
+这2种方法使用Service时所产生的Service生命周期（回调）是不一样的。
+
+start产生的Service生命周期如下：
+onCreate -> onStart/onStartCommand -> service is started -> onDestroy -> service is stopped
+
+bind产生的Service生命周期如下：
+onCreate -> onBind -> service is bound -> onUnbind -> onDestroy -> service is stopped
+
+如果一个或多个组件只是start（通过startService()方法）了Service，只要其中一个组件stop（通过stopService()方法）了Service，则Service会被停止。如果不想这样的事情发生，想使所有的start了Service的组件都让Service停止之后Service才停止，就需要使用一些其它的方法，这个问题会在本系列文章以后的内容中介绍。如果组件不stop Service，则Service会一直运行，除非系统因为其它原因kill掉这个Service。
+
+如果一个或多个组件没有start Service，全都是bind（通过bindService()方法）到Service的，则当所有组件都unbind（通过unbindService()方法）之后，Service会自动停止。只要还有一个组件没有unbind，则Service会一直运行，除非系统因为其它原因kill掉这个Service。
+
+如果一个Service在bind之后又进行了start操作，则unbind之后Service会一直运行，直到stop操作发生。Service先被start，再被bind结果是一样的。
+
+生命周期（回调）顺序如下：
+onCreate -> onStart/onStartCommand -> service is started -> onBind -> service is bound & is started -> unBind -> service is still running -> onDestroy -> service is stopped
+或者：
+onCreate -> onBind -> service is bound -> onStart/onStartCommand -> service is started & is bound -> unBind -> service is still running -> onDestroy -> service is stopped
+
+startService:
+onStart()/onStartCommand()都会传入参数startId:int，用来标识Service的启用号。每次startService()系统会自动为开启的Service产生一个不同的startId，之前赋予它的startId（如果有）将会被覆盖，并且这个新产生的startId会成为这个Service的新的startId，无论Service是否正在运行。
+
+考虑如下情况，当多个组件启用了同一个Service，Service提供互斥的服务（使用synchronized关键字），且要保证在Service把所有工作完成之前不能自杀，这个时候，startId就相当有用了，在Service onStart()/onStartCommand()时把startId保存起来，因为互斥的使用服务，则Service是按顺序提供服务的，则Service自杀的时候只用检查当前Service的startId与保存的这个startId是否相同，不同则说明Service之后还有任务，不能自杀，相同则说明正在运行的任务已经是最后一个任务了，运行完后就可以自杀（使用stopSelf(int startId)方法）。关于这个问题的代码在下面的Demo中列出。
+
+
+* 土豆
+** 字符串
