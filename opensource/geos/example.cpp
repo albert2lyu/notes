@@ -378,6 +378,76 @@ void polygonIntersection() {
 }
 
 
+void coordinateSeq() {
+    CoordinateSequence *cl = new CoordinateArraySequence();
+    cl->add(Coordinate(100,100));
+    cl->add(Coordinate(100,200));
+    cl->add(Coordinate(200,200));
+    cl->add(Coordinate(200,100));
+    cl->add(Coordinate(180,180));
+    //cl->add(Coordinate(100,100));
+    cl->add(geos::geom::Coordinate(150, 150));
+    cl->add(geos::geom::Coordinate(190, 190));
+    cl->add(geos::geom::Coordinate(150, 250));
+    cl->add(geos::geom::Coordinate(250, 250));
+    cl->add(geos::geom::Coordinate(250, 150));
+    //cl->add(geos::geom::Coordinate(150, 150));
+ 
+    LinearRing *lr = global_factory->createLinearRing(cl);
+    geos::geom::Polygon *poly=NULL;
+    poly = global_factory->createPolygon(lr,NULL);     
+
+    CoordinateSequence *cr = new CoordinateArraySequence();
+    cr->add(geos::geom::Coordinate(120, 120));
+    cr->add(geos::geom::Coordinate(120, 170));
+    cr->add(geos::geom::Coordinate(170, 170));
+    cr->add(geos::geom::Coordinate(170, 120));
+    //cr->add(geos::geom::Coordinate(120, 120));
+
+    LinearRing *li = global_factory->createLinearRing(cr);
+    geos::geom::Polygon *poly1=global_factory->createPolygon(li,NULL);
+
+    geos::geom::Geometry *pint = poly1->intersection(poly);
+	io::WKTWriter *wkt = new io::WKTWriter();
+    string tmp=wkt->write(pint);
+    cout<<" (WKT coordinateSeq Intersection) "<<tmp<<endl;
+}
+
+void coordinateSeq2() {
+    CoordinateSequence *cl = new CoordinateArraySequence();
+    cl->add(Coordinate(100,100));
+    cl->add(Coordinate(100,200));
+    cl->add(Coordinate(200,200));
+    cl->add(Coordinate(200,100));
+    cl->add(Coordinate(180,180));
+    cl->add(Coordinate(100,100));
+    LinearRing *lr = global_factory->createLinearRing(cl);
+    geos::geom::Polygon *poly=NULL;
+    poly = global_factory->createPolygon(lr,NULL);     
+
+    CoordinateSequence *cr = new CoordinateArraySequence();
+    cr->add(geos::geom::Coordinate(150, 150));
+    cr->add(geos::geom::Coordinate(190, 190));
+    cr->add(geos::geom::Coordinate(150, 250));
+    cr->add(geos::geom::Coordinate(250, 250));
+    cr->add(geos::geom::Coordinate(250, 150));
+    cr->add(geos::geom::Coordinate(150, 150));
+
+    //geos::geom::Polygon *poly1 = create_circle(150, 150, 10);
+
+    LinearRing *li = global_factory->createLinearRing(cr);
+    geos::geom::Polygon *poly1=global_factory->createPolygon(li,NULL);
+
+    geos::geom::Geometry *pint = poly1->intersection(poly);
+	io::WKTWriter *wkt = new io::WKTWriter();
+    string tmp=wkt->write(pint);
+    cout<<" (WKT coordinateSeq Intersection) "<<tmp<<endl;
+
+    printf("getNumPoints: %lu\n", pint->getNumPoints());
+
+}
+
+
 
 int
 main()
@@ -388,6 +458,8 @@ main()
 		//do_all();
         //polygonDemo();
         polygonIntersection();
+        //coordinateSeq();
+        coordinateSeq2();
 	}
 	// All exception thrown by GEOS are subclasses of this
 	// one, so this is a catch-all 
