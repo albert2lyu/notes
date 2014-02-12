@@ -445,6 +445,20 @@ void coordinateSeq2() {
 
     printf("getNumPoints: %lu\n", pint->getNumPoints());
 
+	vector<Geometry *> *newgeoms = new vector<Geometry *>;
+    newgeoms->push_back(pint);
+
+	cout<<endl<<"----- HERE ARE SOME INTERSECTIONS COMBINATIONS ------"<<endl;
+	wkt_print_geoms(newgeoms);
+
+    CoordinateSequence *coord = pint->getCoordinates();	
+    printf("Get CoordinateSequence Num: %lu\n", coord->getSize());
+
+    for (int i=0; i<coord->getSize(); i++) {
+        printf("Get CoordinateSequence [%d]-(%f, %f)\n", i, coord->getX(i), coord->getY(i));
+    }
+    delete coord;
+    delete newgeoms;
 }
 
 
