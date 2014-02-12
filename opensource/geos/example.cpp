@@ -81,6 +81,7 @@ typedef std::auto_ptr<geos::geom::Geometry> GeomAutoPtr;
 // Prototypes
 void wkt_print_geoms(vector<Geometry *> *geoms);
 
+void coordinateSeq3();
 
 // This object will be used to construct our geometries.
 // It might be bypassed by directly call geometry constructors,
@@ -473,7 +474,8 @@ main()
         //polygonDemo();
         polygonIntersection();
         //coordinateSeq();
-        coordinateSeq2();
+        //coordinateSeq2();
+        coordinateSeq3();
 	}
 	// All exception thrown by GEOS are subclasses of this
 	// one, so this is a catch-all 
@@ -499,3 +501,41 @@ main()
 
 	exit(0);
 }
+
+
+void coordinateSeq3() {
+    CoordinateSequence *cl = new CoordinateArraySequence();
+    cl->add(Coordinate(116.5889446,39.9385391));
+    cl->add(Coordinate(116.5889472,39.9386038));
+    cl->add(Coordinate(116.5889501,39.9386662));
+    cl->add(Coordinate(116.5889538,39.9387273));
+    cl->add(Coordinate(116.5889589,39.9387832));
+    cl->add(Coordinate(116.588965,39.9388347));
+    cl->add(Coordinate(116.5889711,39.9388873));
+    cl->add(Coordinate(116.5889744,39.9389397));
+    MultiPoint *mp = global_factory->createMultiPoint(*cl);
+
+    CoordinateSequence *cr = new CoordinateArraySequence();
+    cr->add(Coordinate(116.5889538,39.9387273));
+    cr->add(Coordinate(116.5889589,39.9387832));
+    cr->add(Coordinate(116.588965,39.9388347));
+    cr->add(Coordinate(116.5889711,39.9388873));
+    MultiPoint *mp2 = global_factory->createMultiPoint(*cr);
+
+    geos::geom::Geometry *pint = mp2->intersection(mp);
+
+    CoordinateSequence *coord = pint->getCoordinates();	
+    printf("Get CoordinateSequence Num: %lu\n", coord->getSize());
+
+    for (int i=0; i<coord->getSize(); i++) {
+        printf("Get CoordinateSequence [%d]-(%f, %f)\n", i, coord->getX(i), coord->getY(i));
+    }
+    delete coord;
+    delete pint;
+    delete mp;
+    delete mp2;
+    delete cl;
+    delete cr;
+}
+
+
