@@ -516,15 +516,23 @@ void coordinateSeq3() {
     MultiPoint *mp = global_factory->createMultiPoint(*cl);
 
     CoordinateSequence *cr = new CoordinateArraySequence();
-    cr->add(Coordinate(116.5889538,39.9387273));
-    cr->add(Coordinate(116.5889589,39.9387832));
-    cr->add(Coordinate(116.588965,39.9388347));
-    cr->add(Coordinate(116.5889711,39.9388873));
+    cr->add(Coordinate(116.5889539 + 0.000005, 39.9387274 + 0.000005));
+    cr->add(Coordinate(116.5889539 + 0.000005, 39.9387274 - 0.000005));
+    cr->add(Coordinate(116.5889539 - 0.000005, 39.9387274 - 0.000005));
+    cr->add(Coordinate(116.5889539 - 0.000005, 39.9387274 + 0.000005));
+    cr->add(Coordinate(116.5889539 + 0.000005, 39.9387274 + 0.000005));
     MultiPoint *mp2 = global_factory->createMultiPoint(*cr);
 
-    geos::geom::Geometry *pint = mp2->intersection(mp);
+
+    LinearRing *li = global_factory->createLinearRing(cr);
+    geos::geom::Polygon *poly1=global_factory->createPolygon(li,NULL);
+
+    //geos::geom::Geometry *pint = mp2->intersection(mp);
+    geos::geom::Geometry *pint = mp2->intersection(poly1);
 
     CoordinateSequence *coord = pint->getCoordinates();	
+
+    printf("getNumPoints: %lu\n", pint->getNumPoints());
     printf("Get CoordinateSequence Num: %lu\n", coord->getSize());
 
     for (int i=0; i<coord->getSize(); i++) {
