@@ -27,6 +27,8 @@
  *
  **********************************************************************/
 
+#include <geos/geom/prep/PreparedGeometryFactory.h>
+#include <geos/geom/prep/PreparedGeometry.h>
 #include <geos/geom/PrecisionModel.h>
 #include <geos/geom/GeometryFactory.h>
 #include <geos/geom/Geometry.h>
@@ -505,15 +507,23 @@ main()
 
 void coordinateSeq3() {
     CoordinateSequence *cl = new CoordinateArraySequence();
-    cl->add(Coordinate(116.5889446,39.9385391));
-    cl->add(Coordinate(116.5889472,39.9386038));
-    cl->add(Coordinate(116.5889501,39.9386662));
+    cl->add(Coordinate(116.5189446,39.9385391));
+    cl->add(Coordinate(116.5389472,39.9386038));
+    cl->add(Coordinate(116.5589889,39.9387932));
+    cl->add(Coordinate(116.5789501,39.9386662));
+
     cl->add(Coordinate(116.5889538,39.9387273));
-    cl->add(Coordinate(116.5889589,39.9387832));
-    cl->add(Coordinate(116.588965,39.9388347));
-    cl->add(Coordinate(116.5889711,39.9388873));
-    cl->add(Coordinate(116.5889744,39.9389397));
+
+    cl->add(Coordinate(116.5289589,39.2387832));
+    cl->add(Coordinate(116.548965,39.9388347));
+    cl->add(Coordinate(116.5689136,39.9385191));
+    cl->add(Coordinate(116.5089711,39.9388873));
+    cl->add(Coordinate(116.5459744,39.9389397));
+    cl->add(Coordinate(116.5819436,39.9385291));
     MultiPoint *mp = global_factory->createMultiPoint(*cl);
+
+    prep::PreparedGeometry const *pg_ = prep::PreparedGeometryFactory::prepare(mp);
+    pg_->getGeometry();
 
     CoordinateSequence *cr = new CoordinateArraySequence();
     cr->add(Coordinate(116.5889539 + 0.000005, 39.9387274 + 0.000005));
@@ -528,9 +538,11 @@ void coordinateSeq3() {
     geos::geom::Polygon *poly1=global_factory->createPolygon(li,NULL);
 
     //geos::geom::Geometry *pint = mp2->intersection(mp);
-    geos::geom::Geometry *pint = mp2->intersection(poly1);
+    //geos::geom::Geometry *pint = mp2->intersection(poly1);
+    geos::geom::Geometry *pint = pg_->getGeometry().intersection(poly1);
 
-    CoordinateSequence *coord = pint->getCoordinates();	
+    //CoordinateSequence *coord = pint->getCoordinates();	
+    CoordinateSequence *coord = pg_->getGeometry().getCoordinates();	
 
     printf("getNumPoints: %lu\n", pint->getNumPoints());
     printf("Get CoordinateSequence Num: %lu\n", coord->getSize());

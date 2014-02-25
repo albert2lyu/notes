@@ -16,9 +16,12 @@
 
 #include <cppdb/frontend.h>
 #include <iostream>
+#include <sstream>
 #include <ctime>
+#include <unistd.h>
+#include <thread>
 
-const static int MAX = 10000 * 10;
+const static int MAX = 10 * 10;
 
 void createTable(cppdb::session sql) 
 {
@@ -84,6 +87,39 @@ void insertTest2(cppdb::session sql)
     printf("insert Test2 time: %lds\n", end_time - start_time);
 }
 
+std::string NumToStr(long long num)
+{           
+    std::ostringstream ss;
+    ss << num;  
+    return ss.str();
+}               
+
+void insertTestMultiRow() 
+{
+    cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border;@pool_size=20");
+    cppdb::statement stat;
+    std::time_t start_time = std::time(0);
+    std::time_t now_time = std::time(0);
+    std::tm now = *std::localtime(&now_time);
+
+    std::string str = "INSERT INTO public.test(n,f,t,name) values ";
+
+    int i = 0;
+    for (i=0; i < MAX; i++) {
+        now_time = std::time(0);
+        now = *std::localtime(&now_time);
+        if (i != MAX-1) {
+            str += "(" + NumToStr(i) + ", " + NumToStr(i) + ", now()," + "'CPPPDB Test'" + "),";
+        } else {
+            str += "(" + NumToStr(i) + ", " + NumToStr(i) + ", now()," + "'CPPPDB Test'" + ")";
+        }
+    }
+    stat = sql << str;
+    stat.exec();
+    std::time_t end_time = std::time(0);
+    printf("insert insertTestMultiRow time: %lds\n", end_time - start_time);
+}
+
 void insertTransactionTest2(cppdb::session sql) 
 {
     cppdb::statement stat;
@@ -108,13 +144,11 @@ void insertTransactionTest2(cppdb::session sql)
     printf("Insert Transaction Test2 time: %lds\n", end_time - start_time);
 }
 
-
-
 int main()
 {
+    cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border;@pool_size=10");
     try {
         printf("Connection postgresql DB\n");
-        cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border");
 
         createTable(sql);
 
@@ -159,13 +193,22 @@ int main()
             std::cout << "The values are " << n <<" " << f << std::endl;
         }
 
-        insertTest1(sql);
-        insertTest2(sql);
-        insertTransactionTest2(sql);
+        //insertTest1(sql);
+        //insertTest2(sql);
+        for (int i=0; i<200; i++) {
+            //std::thread th(insertTestMultiRow);
+            insertTestMultiRow();
+        }
+        //insertTransactionTest2(sql);
     } catch(std::exception const &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
         return 1;
     }
+
+    for (int i=0; i<100; i++) {
+        sleep(1000);
+    }
+    //sql.close();
     return 0;
 }
 

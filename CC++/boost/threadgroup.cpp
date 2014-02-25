@@ -8,17 +8,17 @@ void wait(int seconds)
     boost::this_thread::sleep(boost::posix_time::seconds(seconds)); 
 } 
 
-int max = 29;
+int max = 500;
 int count = 0;
 boost::mutex mutex;
 
 void thread(int id, int start, int end) 
 { 
-    printf("id: %d - start: %d, end: %d\n", id, start, end);
+    //printf("id: %02d - start: %02d, end: %02d\n", id, start, end);
     for (int i = start; i < end; ++i) 
     { 
         //wait(1); 
-        printf("id: %d - %d\n", id, i);
+        printf("id: %02d - start: %02d, end: %02d, i: %02d\n", id, start, end, i);
         boost::unique_lock<boost::mutex> lock(mutex);
         ++count;
     }
@@ -30,6 +30,7 @@ int main(int argc, char *argv[])
         max = atoi(argv[1]);
     }
     int coreNum = boost::thread::hardware_concurrency() - 1;
+    coreNum = 22;
     int per = max / coreNum;
     printf("per: %d, coreNum: %d, max: %d\n", per, coreNum, max);
     boost::thread_group threads;
