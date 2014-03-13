@@ -29,11 +29,20 @@ char** tokenize(const char* input)
     return result;
 }
 
+void plus(int &count)
+{
+    count += count;
+}
+
 int main ()
 {
     char** tokens = tokenize("/execlient//master1/node1//test1/");
     char *path = (char *)malloc(128); 
     char** it;
+    int count = 5;
+    printf("count: %d\n", count);
+    plus(count);
+    printf("count: %d\n", count);
     memset(path, '\0', 128);
     for(it=tokens; it && *it; ++it)
     {
