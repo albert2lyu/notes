@@ -17,11 +17,15 @@ void replaceAll(std::string& str, const std::string& from, const std::string& to
     }
 }
 
-int main()
+int main(int argc, char *argv[])
 {
+    if (argc != 2) {
+        printf("%s sqlname\n", argv[0]);
+        return 0;
+    }
     std::string tables[] = {
-        //"beijing_beijing",
-        //"guangdong_dongguan",
+        "beijing_beijing",
+        "guangdong_dongguan",
         "guangdong_foshan",
         "guangdong_guangzhou",
         "guangdong_huizhou",
@@ -50,8 +54,9 @@ int main()
         "zhejiang_jiaxing",
         "zhejiang_ningbo"
     };
-
-    std::ifstream file ("./input.txt");
+    std::string infilename = argv[1];
+    std::string outfilename = infilename + ".new.sql";
+    std::ifstream file (infilename);
     if (! file.is_open()){
     	std::cout << "Error opening file";
     	exit(1);
@@ -66,7 +71,7 @@ int main()
     int size_table = sizeof( tables ) / sizeof( tables[ 0 ] );
 
     std::ofstream ofs;
-    ofs.open ("to.txt", std::ofstream::out | std::ofstream::app);
+    ofs.open (outfilename, std::ofstream::out | std::ofstream::app);
     for (int i=0; i<size_table; i++) {
         std::string sq = sqlstr;
         printf("%s\n", tables[i].c_str());
