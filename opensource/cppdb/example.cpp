@@ -146,10 +146,11 @@ void insertTransactionTest2(cppdb::session sql)
 
 int main()
 {
-    cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border;@pool_size=10");
+    //cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border;@pool_size=10");
     try {
         printf("Connection postgresql DB\n");
 
+        /*
         createTable(sql);
 
         std::time_t now_time = std::time(0);
@@ -195,6 +196,8 @@ int main()
 
         //insertTest1(sql);
         //insertTest2(sql);
+        */
+
         for (int i=0; i<200; i++) {
             //std::thread th(insertTestMultiRow);
             insertTestMultiRow();
