@@ -4,4 +4,4 @@ all:
 	g++ -g -o cfgtable cfgtable.cpp -I$(CPPDB)/include -L$(CPPDB)/lib -lcppdb
 
 clean:
-	rm -rf *.o example *.dSYM
+	rm -rf *.o cfgtable example *.dSYM
