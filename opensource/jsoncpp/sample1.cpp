@@ -2,6 +2,23 @@
 #include <string>
 #include "json/json.h"
 
+std::string jsonArray()
+{
+    std::vector<Json::Value> panoidroot;
+    for(int i=0; i<10; i++) {
+        Json::Value value(Json::objectValue);
+        value["name"] = "name";
+        value["email"] = "email@163.com";
+        panoidroot.push_back(value);
+    }
+
+    Json::Value panoid_json(Json::arrayValue);
+    for (std::vector<Json::Value>::iterator it = panoidroot.begin(); it != panoidroot.end(); ++it) {
+        panoid_json.append(*it);
+    }
+    return panoid_json.toStyledString();
+}
+
 int main(int argc, char* argv[])
 {
     std::ifstream ifs;
@@ -37,5 +54,10 @@ int main(int argc, char* argv[])
     std::ofstream ofs;
     ofs.open("test_append.json");
     ofs << json_append_file;
+
+
+    std::cout << "###########" << std::endl;
+    std::string str = jsonArray();
+    std::cout << str << std::endl;
     return 0;
 }

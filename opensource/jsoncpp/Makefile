@@ -12,7 +12,7 @@ TESTS = sample1 sample2
 all : $(TESTS)
 
 clean :
-	rm -f $(TESTS) *.o
+	rm -rf $(TESTS) *.o *.dSYM test_append.json
 
 sample1 : sample1.cpp
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -lpthread $^ -o $@

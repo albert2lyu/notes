@@ -23,6 +23,8 @@
 
 const static int MAX = 10 * 10;
 
+const char* CONNECTION = "postgresql:host=db-rd-2013lbs10.db01.baidu.com;port=8999;dbname=test;user=stadmin;password=stadmin;@pool_size=20";
+
 void createTable(cppdb::session sql) 
 {
     sql << "DROP TABLE IF EXISTS public.test" << cppdb::exec;
@@ -144,9 +146,27 @@ void insertTransactionTest2(cppdb::session sql)
     printf("Insert Transaction Test2 time: %lds\n", end_time - start_time);
 }
 
-int main()
+void select()
 {
-    //cppdb::session sql("postgresql:host=127.0.0.1;dbname=stdb;user=border;password=border;@pool_size=10");
+    cppdb::session sql(CONNECTION);
+    cppdb::result res = sql << "SELECT name, signup_date FROM user_tbl";
+
+    while(res.next()) {
+        std::tm atime;
+        std::string name;
+        res >> name >> atime;
+        std::cout << name << ' ' << asctime(&atime) << std::endl;
+    }
+    sql.close();
+}
+
+int main(int argc, char **argv)
+{
+    //cppdb::session sql(CONNECTION);
+    int count = 1;
+    if (argc == 2) {
+        count = atoi(argv[1]);
+    }
     try {
         printf("Connection postgresql DB\n");
 
@@ -198,18 +218,19 @@ int main()
         //insertTest2(sql);
         */
 
-        for (int i=0; i<200; i++) {
+        std::cout << "CONNECTION: " << CONNECTION << std::endl;
+
+        select();
+
+        for (int i=0; i<count; i++) {
             //std::thread th(insertTestMultiRow);
-            insertTestMultiRow();
+            //insertTestMultiRow();
+            select();
         }
         //insertTransactionTest2(sql);
     } catch(std::exception const &e) {
         std::cerr << "ERROR: " << e.what() << std::endl;
         return 1;
-    }
-
-    for (int i=0; i<100; i++) {
-        sleep(1000);
     }
     //sql.close();
     return 0;
