@@ -19,6 +19,15 @@ std::string jsonArray()
     return panoid_json.toStyledString();
 }
 
+std::string intJson()
+{
+    Json::Value value;
+    long long id = 999;
+    value["name"] = "name";
+    value["id"] = (uint)id;
+    return value.toStyledString();
+}
+
 int main(int argc, char* argv[])
 {
     std::ifstream ifs;
@@ -59,5 +68,6 @@ int main(int argc, char* argv[])
     std::cout << "###########" << std::endl;
     std::string str = jsonArray();
     std::cout << str << std::endl;
+    std::cout << intJson() << std::endl;
     return 0;
 }

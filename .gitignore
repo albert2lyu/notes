@@ -68,3 +68,5 @@ GTAGS
 *.orig
 *~
 \#*#
+.dSYM
+.dSYM/*
